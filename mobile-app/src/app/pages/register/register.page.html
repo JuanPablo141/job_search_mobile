@@ -1,0 +1,127 @@
+<ion-header [translucent]="true" class="ion-no-border custom-header">
+  <ion-toolbar>
+    <ion-button slot="start" fill="clear" color="secondary" routerLink="/init">
+      <ion-icon name="arrow-back-outline" slot="icon-only"></ion-icon>
+    </ion-button>
+    <ion-title>Criar Conta</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="register-content">
+  <div class="register-wrapper">
+    <!-- Apelo & Proposta de Valor (Idêntico ao Register.tsx) -->
+    <div class="appealsection">
+      <div class="maintitle">
+        <h1 class="title">Job <span class="cyan">Search</span></h1>
+        <h2 class="subtitle">
+          Dê o <strong>próximo passo</strong> <br />
+          na sua carreira
+        </h2>
+        <p>
+          Conectamos você com empresas de tecnologia que buscam exatamente suas qualificações.
+        </p>
+      </div>
+
+      <div class="appeal-item">
+        <div class="appeal-badge">⚡ Candidatura Rápida</div>
+        <p class="appeal-desc">Envie seu currículo diretamente, sem formulários exaustivos.</p>
+      </div>
+
+      <div class="appeal-item">
+        <div class="appeal-badge">🎯 Match Inteligente</div>
+        <p class="appeal-desc">Análise automatizada do currículo para encontrar vagas sob medida.</p>
+      </div>
+
+      <div class="appeal-item">
+        <div class="appeal-badge">🚀 Conexão Direta</div>
+        <p class="appeal-desc">Acesso a empresas de ponta com processos ágeis e feedbacks rápidos.</p>
+      </div>
+    </div>
+
+    <!-- Formulário de Cadastro -->
+    <ion-card class="auth-card">
+      <ion-card-header>
+        <ion-card-title class="cardtitle">Cadastre-se</ion-card-title>
+        <ion-card-subtitle class="cardsub">
+          Já possui uma conta? <a routerLink="/login">Entre</a>
+        </ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content>
+        @if (successMessage()) {
+          <div class="success-alert">
+            ✓ {{ successMessage() }}
+          </div>
+        }
+
+        @if (errorMessage()) {
+          <div class="general-error-alert">
+            ⚠️ {{ errorMessage() }}
+          </div>
+        }
+
+        <form (ngSubmit)="handleRegister()">
+          <div class="input-group">
+            <label for="reg-name">Nome Completo *</label>
+            <ion-input
+              id="reg-name"
+              type="text"
+              placeholder="ex: Douglas Costa"
+              [(ngModel)]="name"
+              name="name"
+              class="custom-input"
+            ></ion-input>
+          </div>
+
+          <div class="input-group">
+            <label for="reg-email">E-mail *</label>
+            <ion-input
+              id="reg-email"
+              type="email"
+              placeholder="xxxxxxx@gmail.com"
+              [(ngModel)]="email"
+              name="email"
+              class="custom-input"
+            ></ion-input>
+          </div>
+
+          <div class="input-group">
+            <label for="reg-password">Senha *</label>
+            <ion-input
+              id="reg-password"
+              type="password"
+              placeholder="Mínimo 6 caracteres"
+              [(ngModel)]="password"
+              name="password"
+              class="custom-input"
+            ></ion-input>
+          </div>
+
+          <div class="input-group">
+            <label for="reg-confirm">Confirmar Senha *</label>
+            <ion-input
+              id="reg-confirm"
+              type="password"
+              placeholder="Repita sua senha"
+              [(ngModel)]="confirmPassword"
+              name="confirmPassword"
+              class="custom-input"
+            ></ion-input>
+          </div>
+
+          <ion-button expand="block" type="submit" class="submit-btn btn-primary-gradient">
+            Registrar Perfil Grátis
+          </ion-button>
+        </form>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <ion-toast
+    [isOpen]="isToastOpen()"
+    [message]="toastMessage()"
+    [duration]="2500"
+    (didDismiss)="isToastOpen.set(false)"
+    position="bottom"
+  ></ion-toast>
+</ion-content>

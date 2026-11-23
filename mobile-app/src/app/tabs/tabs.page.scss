@@ -1,0 +1,28 @@
+.custom-tab-bar {
+  --background: rgba(14, 20, 36, 0.95);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(56, 189, 248, 0.18);
+  height: 64px;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
+
+  ion-tab-button {
+    --color: #64748b;
+    --color-selected: #38bdf8;
+    font-size: 0.75rem;
+    font-weight: 700;
+    transition: all 0.2s ease;
+
+    ion-icon {
+      font-size: 1.4rem;
+      margin-bottom: 2px;
+      transition: transform 0.2s ease;
+    }
+
+    &.tab-selected {
+      ion-icon {
+        transform: translateY(-2px);
+        filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.6));
+      }
+    }
+  }
+}

@@ -1,0 +1,132 @@
+<ion-header [translucent]="true" class="ion-no-border custom-header">
+  <ion-toolbar>
+    <ion-button slot="start" fill="clear" color="secondary" routerLink="/init">
+      <ion-icon name="arrow-back-outline" slot="icon-only"></ion-icon>
+    </ion-button>
+    <ion-title>Entrar na Conta</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="login-content">
+  <div class="login-wrapper">
+    <!-- Bloco de Apelo & Proposta de Valor (Idêntico ao Login.tsx) -->
+    <div class="appealsection">
+      <div class="maintitle">
+        <h1 class="title">Job <span class="cyan">Search</span></h1>
+        <h2 class="subtitle">
+          Bem-vindo de volta! <br />
+          Dê o <strong>próximo passo</strong> na sua carreira
+        </h2>
+        <p>
+          Acesse sua conta para conferir novas oportunidades que dão match com o seu perfil profissional.
+        </p>
+      </div>
+
+      <div class="appeal-item">
+        <div class="appeal-badge">⚡ Matchs Atualizados</div>
+        <p class="appeal-desc">Novas vagas recomendadas diariamente com base nas suas qualificações.</p>
+      </div>
+
+      <div class="appeal-item">
+        <div class="appeal-badge">🎯 Status em Tempo Real</div>
+        <p class="appeal-desc">Acompanhe o retorno das empresas e as etapas do seu processo seletivo.</p>
+      </div>
+
+      <div class="appeal-item">
+        <div class="appeal-badge">🔒 Acesso Seguro & JWT</div>
+        <p class="appeal-desc">Suas informações e pretensões profissionais protegidas com segurança.</p>
+      </div>
+    </div>
+
+    <!-- Se estiver logado: Card de Sessão Ativa -->
+    @if (auth.isLoggedIn()) {
+      <ion-card class="auth-card session-card">
+        <ion-card-header>
+          <div class="session-avatar">
+            {{ auth.currentUser()?.name?.charAt(0)?.toUpperCase() || 'U' }}
+          </div>
+          <span class="session-tag">✦ CONECTADO</span>
+          <ion-card-title class="session-title">Sessão Ativa</ion-card-title>
+          <ion-card-subtitle class="session-info">
+            Você já está autenticado no Job Search como <strong>{{ auth.currentUser()?.name || 'Candidato' }}</strong>
+            <br>
+            <span class="session-email">{{ auth.currentUser()?.email }}</span>
+          </ion-card-subtitle>
+        </ion-card-header>
+
+        <ion-card-content>
+          <ion-button expand="block" routerLink="/tabs/jobs" class="submit-btn btn-primary-gradient">
+            Explorar Vagas ➔
+          </ion-button>
+          <ion-button expand="block" fill="outline" color="danger" (click)="handleLogout()" class="logout-action-btn">
+            🚪 Sair da Conta (Logout)
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+    } @else {
+      <!-- Formulário de Login -->
+      <ion-card class="auth-card">
+        <ion-card-header>
+          <ion-card-title class="cardtitle">Entrar</ion-card-title>
+          <ion-card-subtitle class="cardsub">
+            Não possui uma conta? <a routerLink="/register">Cadastre-se</a>
+          </ion-card-subtitle>
+        </ion-card-header>
+
+        <ion-card-content>
+          @if (errorMessage()) {
+            <div class="general-error-alert">
+              ⚠️ {{ errorMessage() }}
+            </div>
+          }
+
+          <form (ngSubmit)="handleLogin()">
+            <div class="input-group">
+              <label for="email">E-mail:</label>
+              <ion-input
+                id="email"
+                type="email"
+                placeholder="xxxxxxx@gmail.com"
+                [(ngModel)]="email"
+                name="email"
+                class="custom-input"
+              ></ion-input>
+            </div>
+
+            <div class="input-group">
+              <label for="password">Senha:</label>
+              <ion-input
+                id="password"
+                type="password"
+                placeholder="Mínimo 6 caracteres"
+                [(ngModel)]="password"
+                name="password"
+                class="custom-input"
+              ></ion-input>
+            </div>
+
+            <ion-button expand="block" type="submit" class="submit-btn btn-primary-gradient">
+              Entrar na Plataforma
+            </ion-button>
+
+            <!-- Atalho de preenchimento de teste -->
+            <div class="demo-shortcut">
+              <span class="demo-text">Credencial inicial de teste:</span>
+              <ion-button size="small" fill="outline" color="medium" (click)="fillDemoUser()">
+                Preencher Usuário Demo (Alvaro)
+              </ion-button>
+            </div>
+          </form>
+        </ion-card-content>
+      </ion-card>
+    }
+  </div>
+
+  <ion-toast
+    [isOpen]="isToastOpen()"
+    [message]="toastMessage()"
+    [duration]="2500"
+    (didDismiss)="isToastOpen.set(false)"
+    position="bottom"
+  ></ion-toast>
+</ion-content>

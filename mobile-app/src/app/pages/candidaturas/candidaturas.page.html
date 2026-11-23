@@ -1,0 +1,152 @@
+<ion-header [translucent]="true" class="ion-no-border custom-header">
+  <ion-toolbar>
+    <ion-title>Minhas Candidaturas</ion-title>
+    <ion-button slot="end" fill="clear" color="secondary" routerLink="/init" class="header-link-btn">
+      Início
+    </ion-button>
+  </ion-toolbar>
+
+  <ion-toolbar class="segment-toolbar">
+    <ion-segment [value]="activeTab()" (ionChange)="onSegmentChange($event)" mode="md" scrollable>
+      <ion-segment-button value="all">
+        <ion-label>Todas ({{ candidateJobs().length }})</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="applied">
+        <ion-label>Enviadas ({{ inAnalysis() }})</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="interview">
+        <ion-label>Entrevistas ({{ inInterview() }})</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="favorites">
+        <ion-label>Favoritas ({{ favService.favoriteIds().length }})</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="discarded">
+        <ion-label>Descartadas</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="candidaturas-content">
+  <ion-refresher slot="fixed" (ionRefresh)="loadData($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Hero de Apresentação (Idêntico ao Candidaturas.tsx) -->
+  <div class="candidaturas-hero">
+    <span class="hero-tag">✦ GESTÃO DE PROCESSOS</span>
+    <h1 class="hero-title">Painel de Candidaturas</h1>
+    <p class="hero-subtitle">
+      Gerencie e acompanhe a evolução de todos os seus processos seletivos em tempo real com transparência total.
+    </p>
+  </div>
+
+  <!-- Painel de KPIs de Gestão -->
+  <div class="kpi-section">
+    <div class="kpi-card">
+      <span class="kpi-label">Total Inscritas</span>
+      <span class="kpi-value">{{ totalApplied() }}</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Em Análise</span>
+      <span class="kpi-value highlight">{{ inAnalysis() }}</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Entrevistas</span>
+      <span class="kpi-value success">{{ inInterview() }}</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Média Match</span>
+      <span class="kpi-value cyan-val">{{ avgScore() }}%</span>
+    </div>
+  </div>
+
+  <!-- Listagem de Vagas / Processos -->
+  <div class="list-container">
+    @if (loading()) {
+      <div class="loading-state">
+        <ion-spinner name="crescent" color="primary"></ion-spinner>
+        <p>Carregando candidaturas e favoritas...</p>
+      </div>
+    } @else {
+      @for (match of filteredJobs(); track match.id) {
+        <ion-card
+          [appMatchHighlight]="match.score"
+          appCardHover
+          class="app-card"
+          [routerLink]="['/tabs/jobs', match.id]"
+        >
+          <ion-card-header>
+            <div class="card-header-row">
+              <div class="badge-group">
+                <ion-badge color="success" class="score-badge">
+                  {{ match.score | matchScore }}
+                </ion-badge>
+                <span class="source-tag">{{ match.job.source || 'Gupy' }}</span>
+              </div>
+
+              <ion-button fill="clear" size="small" (click)="toggleFavorite($event, match.id)">
+                <ion-icon
+                  [name]="(match.is_favorite || favService.isFavorite(match.id)) ? 'heart' : 'heart-outline'"
+                  [color]="(match.is_favorite || favService.isFavorite(match.id)) ? 'danger' : 'medium'"
+                  slot="icon-only"
+                ></ion-icon>
+              </ion-button>
+            </div>
+
+            <ion-card-title class="job-title">{{ match.job.title }}</ion-card-title>
+            <ion-card-subtitle class="company-name">{{ match.job.company }}</ion-card-subtitle>
+          </ion-card-header>
+
+          <ion-card-content>
+            <p class="description">{{ match.job.description | truncate:100 }}</p>
+
+            <div class="meta-row">
+              <span class="meta-item">
+                <ion-icon name="location-outline"></ion-icon>
+                {{ match.job.location | titlecase }}
+              </span>
+              <span class="meta-item">
+                <ion-icon name="calendar-outline"></ion-icon>
+                {{ match.job.posted_at | date:'dd/MM/yyyy' }}
+              </span>
+            </div>
+
+            <!-- Controle de Status em Tempo Real (PATCH na API) -->
+            <div class="status-control-box" (click)="$event.stopPropagation()">
+              <label>Etapa da Candidatura:</label>
+              <ion-select
+                [value]="match.status"
+                interface="popover"
+                (ionChange)="handleStatusChange(match.id, $event.detail.value)"
+                class="status-select"
+              >
+                <ion-select-option value="applied">Candidatura Enviada</ion-select-option>
+                <ion-select-option value="interview">Entrevista Agendada</ion-select-option>
+                <ion-select-option value="discarded">Descartada</ion-select-option>
+                <ion-select-option value="new">Nova Oportunidade</ion-select-option>
+              </ion-select>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      } @empty {
+        <div class="empty-state">
+          <ion-icon name="briefcase-outline" class="empty-icon"></ion-icon>
+          <h3>Nenhuma vaga neste filtro</h3>
+          <p>Você não possui processos seletivos ou vagas salvas nesta categoria.</p>
+          <ion-button fill="outline" routerLink="/tabs/jobs" size="small" class="explore-btn">
+            Explorar Vagas Recomendadas
+          </ion-button>
+        </div>
+      }
+    }
+  </div>
+
+  <ion-toast
+    [isOpen]="isToastOpen()"
+    [message]="toastMessage()"
+    [duration]="2500"
+    (didDismiss)="isToastOpen.set(false)"
+    position="bottom"
+  ></ion-toast>
+</ion-content>

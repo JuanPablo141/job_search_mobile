@@ -1,0 +1,182 @@
+<ion-header [translucent]="true" class="ion-no-border custom-header">
+  <ion-toolbar>
+    <ion-title>Perfil & Habilidades</ion-title>
+    @if (auth.isLoggedIn()) {
+      <ion-button slot="end" fill="clear" color="danger" (click)="handleLogout()" title="Sair da Conta">
+        <ion-icon name="log-out-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    }
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="perfil-content">
+  <div class="perfil-wrapper">
+    <!-- Hero / Calibração (Idêntico ao Perfil.tsx) -->
+    <div class="hero-box">
+      <div class="tag">✦ CALIBRAÇÃO IA</div>
+      <h2>Perfil Profissional & Skills</h2>
+      <p>Defina suas competências técnicas para calibrar o algoritmo de compatibilidade do Spring Boot e Python.</p>
+    </div>
+
+    @if (loading()) {
+      <div class="loading-state">
+        <ion-spinner name="crescent" color="primary"></ion-spinner>
+        <p>Carregando perfil e catálogo de skills...</p>
+      </div>
+    } @else {
+      <!-- Seção 1: Identificação Profissional -->
+      <ion-card class="section-card">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="person-outline"></ion-icon>
+            Identificação
+          </ion-card-title>
+          <ion-card-subtitle>Informações que definem seu objetivo profissional</ion-card-subtitle>
+        </ion-card-header>
+
+        <ion-card-content>
+          <div class="input-group">
+            <label for="prof-name">Cargo Alvo / Título Profissional:</label>
+            <ion-input
+              id="prof-name"
+              type="text"
+              placeholder="Ex: Desenvolvedor Front-End / Mobile"
+              [(ngModel)]="profileName"
+              name="profileName"
+              class="custom-input"
+            ></ion-input>
+          </div>
+
+          <div class="input-group">
+            <label for="prof-email">E-mail da Conta:</label>
+            <ion-input
+              id="prof-email"
+              type="email"
+              [value]="auth.currentUser()?.email || 'alvarooliver1802@gmail.com'"
+              readonly
+              disabled
+              class="custom-input read-only"
+            ></ion-input>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Seção 2: Calibração de Nota Mínima de Match -->
+      <ion-card class="section-card">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="sparkles-outline"></ion-icon>
+            Aderência Mínima (Match IA)
+          </ion-card-title>
+          <ion-card-subtitle>Filtrar vagas com nota superior a este patamar</ion-card-subtitle>
+        </ion-card-header>
+
+        <ion-card-content>
+          <div class="range-display">
+            <span>Nota mínima recomendada:</span>
+            <ion-badge color="primary" class="score-badge">{{ minScore }}%</ion-badge>
+          </div>
+
+          <ion-range
+            [min]="0"
+            [max]="100"
+            [step]="5"
+            [(ngModel)]="minScore"
+            color="primary"
+            pin="true"
+          >
+            <ion-label slot="start">0%</ion-label>
+            <ion-label slot="end">100%</ion-label>
+          </ion-range>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Seção 3: Habilidades Técnicas & Autocomplete (Perfil.tsx) -->
+      <ion-card class="section-card">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="hardware-chip-outline"></ion-icon>
+            Habilidades & Tecnologias
+          </ion-card-title>
+          <ion-card-subtitle>O motor de IA compara essas skills contra as vagas da Gupy</ion-card-subtitle>
+        </ion-card-header>
+
+        <ion-card-content>
+          <!-- Input com Autocomplete -->
+          <div class="input-group">
+            <label for="skill-input">Adicionar Nova Tecnologia:</label>
+            <div class="add-row">
+              <ion-input
+                id="skill-input"
+                type="text"
+                placeholder="Ex: React, Java, Docker, AWS..."
+                [(ngModel)]="newSkillInput"
+                (keyup.enter)="addSkill(newSkillInput)"
+                class="custom-input flex-input"
+              ></ion-input>
+              <ion-button (click)="addSkill(newSkillInput)" color="secondary" class="add-btn">
+                <ion-icon name="add-outline" slot="icon-only"></ion-icon>
+              </ion-button>
+            </div>
+
+            <!-- Sugestões Dropdown -->
+            @if (filteredSuggestions().length > 0) {
+              <div class="suggestions-box">
+                @for (sug of filteredSuggestions(); track sug.name) {
+                  <div class="sug-item" (click)="addSkill(sug.name)">
+                    <span class="sug-name">{{ sug.name }}</span>
+                    <span class="sug-cat">{{ sug.category }}</span>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Sugestões Populares Rápidas (Perfil.tsx) -->
+          <div class="popular-section">
+            <span class="pop-label">Sugestões rápidas de TI:</span>
+            <div class="pop-chips">
+              @for (pop of popularSkills; track pop) {
+                @if (!skills().includes(pop)) {
+                  <ion-chip outline color="medium" (click)="addSkill(pop)" class="quick-chip">
+                    <ion-icon name="add-outline"></ion-icon>
+                    <ion-label>{{ pop }}</ion-label>
+                  </ion-chip>
+                }
+              }
+            </div>
+          </div>
+
+          <!-- Tags/Chips Ativos -->
+          <div class="active-skills-box">
+            <label>Habilidades Selecionadas ({{ skills().length }}):</label>
+            <div class="skills-chips">
+              @for (skill of skills(); track skill) {
+                <ion-chip color="primary" class="skill-tag">
+                  <ion-label>{{ skill }}</ion-label>
+                  <ion-icon name="close-circle" (click)="removeSkill(skill)"></ion-icon>
+                </ion-chip>
+              } @empty {
+                <p class="empty-text">Nenhuma habilidade cadastrada ainda. Adicione as tecnologias que você domina.</p>
+              }
+            </div>
+          </div>
+
+          <!-- Botão de Salvar Perfil -->
+          <ion-button expand="block" (click)="handleSave()" class="save-btn btn-primary-gradient">
+            <ion-icon name="save-outline" slot="start"></ion-icon>
+            Salvar Perfil & Recalcular Aderência
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+    }
+  </div>
+
+  <ion-toast
+    [isOpen]="isToastOpen()"
+    [message]="toastMessage()"
+    [duration]="3000"
+    (didDismiss)="isToastOpen.set(false)"
+    position="bottom"
+  ></ion-toast>
+</ion-content>

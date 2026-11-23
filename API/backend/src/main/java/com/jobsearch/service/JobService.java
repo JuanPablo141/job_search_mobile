@@ -13,12 +13,17 @@ import com.jobsearch.repository.SearchProfileRepository;
 import com.jobsearch.repository.UserJobMatchRepository;
 import com.jobsearch.repository.UserRepository;
 import com.jobsearch.security.SyncTokenProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -28,6 +33,8 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 public class JobService {
+
+    private static final Logger logger = LoggerFactory.getLogger(JobService.class);
 
     private final UserJobMatchRepository matchRepository;
     private final JobRepository jobRepository;
@@ -130,6 +137,42 @@ public class JobService {
         return result;
     }
 
+    private String resolvePythonCommand() {
+        String configured = System.getenv("PYTHON_CMD");
+        if (configured != null && !configured.isBlank()) {
+            return configured;
+        }
+        String[] candidates = System.getProperty("os.name").toLowerCase().contains("win")
+                ? new String[]{"python", "py", "python3"}
+                : new String[]{"python3", "python"};
+
+        for (String cmd : candidates) {
+            try {
+                Process p = new ProcessBuilder(cmd, "--version").start();
+                if (p.waitFor(3, TimeUnit.SECONDS) && p.exitValue() == 0) {
+                    return cmd;
+                }
+            } catch (Exception ignored) {
+            }
+        }
+        return candidates[0];
+    }
+
+    private File locateScriptFile() {
+        List<File> candidates = List.of(
+                new File("../python-service/main.py"),
+                new File("python-service/main.py"),
+                new File("API/python-service/main.py"),
+                new File("../API/python-service/main.py")
+        );
+        for (File candidate : candidates) {
+            if (candidate.exists()) {
+                return candidate;
+            }
+        }
+        return null;
+    }
+
     /**
      * Aciona sob demanda a execução do pipeline Python (Scraper Gupy + IA Matching)
      * e retorna a lista atualizada de vagas compatíveis do usuário.
@@ -160,14 +203,12 @@ public class JobService {
 
         // 1. Tenta executar o pipeline Python com os parâmetros dinâmicos do usuário
         try {
-            File scriptFile = new File("../python-service/main.py");
-            if (!scriptFile.exists()) {
-                scriptFile = new File("python-service/main.py");
-            }
+            File scriptFile = locateScriptFile();
 
-            if (scriptFile.exists()) {
-                // Tenta comando python padrão (funciona no Windows e Linux)
-                String pythonCmd = System.getProperty("os.name").toLowerCase().contains("win") ? "python" : "python3";
+            if (scriptFile != null && scriptFile.exists()) {
+                String pythonCmd = resolvePythonCommand();
+                logger.info("Executando pipeline Python com comando '{}' e script '{}'...", pythonCmd, scriptFile.getAbsolutePath());
+
                 ProcessBuilder pb = new ProcessBuilder(
                         pythonCmd, scriptFile.getName(),
                         "--user_id", String.valueOf(targetUserId),
@@ -176,15 +217,23 @@ public class JobService {
                         "--chat_id", chatId
                 );
                 pb.directory(scriptFile.getParentFile());
-                // Token interno exigido por /api/jobs/sync
                 pb.environment().put("SYNC_TOKEN", syncTokenProvider.getToken());
-                // A saída do Python vai para o console do Spring. Sem isso ninguém lê o pipe,
-                // o buffer enche e o processo trava até o timeout.
+                pb.environment().put("SPRING_API_URL", "http://localhost:8082");
                 pb.redirectErrorStream(true);
-                pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+
                 Process process = pb.start();
 
-                boolean finished = process.waitFor(40, TimeUnit.SECONDS);
+                // Drena a saída para não bloquear o buffer do SO e repassa para o logger
+                StringBuilder output = new StringBuilder();
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        output.append(line).append("\n");
+                        logger.info("[Python Pipeline] {}", line);
+                    }
+                }
+
+                boolean finished = process.waitFor(45, TimeUnit.SECONDS);
                 if (finished && process.exitValue() == 0) {
                     scriptExecuted = true;
                     executionMessage = "Vagas coletadas ao vivo da API da Gupy e sincronizadas via IA com sucesso para as suas skills.";
@@ -192,13 +241,16 @@ public class JobService {
                     process.destroyForcibly();
                     executionMessage = "A sincronização externa levou mais tempo do que o esperado. Vagas em cache exibidas.";
                 } else {
-                    executionMessage = "Processo do scraper finalizou com código " + process.exitValue() + ". Vagas em cache exibidas.";
+                    executionMessage = "Processo do scraper finalizou com código " + process.exitValue() + ". Vagas atuais exibidas.";
+                    logger.warn("Pipeline Python finalizou com erro (código {}):\n{}", process.exitValue(), output);
                 }
             } else {
-                executionMessage = "Script python-service/main.py não localizado no caminho padrão. Vagas atuais mantidas.";
+                executionMessage = "Script python-service/main.py não localizado nos caminhos padrão. Vagas atuais mantidas.";
+                logger.warn("Script python-service/main.py não localizado nos diretórios candidatos.");
             }
         } catch (Exception e) {
             executionMessage = "Aviso ao rodar scraper: " + e.getMessage() + ". Retornando dados atuais.";
+            logger.error("Erro ao disparar pipeline Python", e);
         }
 
         // 2. Retorna a lista atualizada de vagas do usuário

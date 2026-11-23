@@ -66,6 +66,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/jobs/sync/**").permitAll()
                 // Catálogo de skills é público (não contém dados do usuário)
                 .requestMatchers(HttpMethod.GET, "/api/skills", "/api/skills/**").permitAll()
+                // Visualização de vagas e disparo do scraper permitidos (fallback para usuário demo ID 1 se sem token)
+                .requestMatchers(HttpMethod.GET, "/api/jobs", "/api/jobs/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/jobs/refresh").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
                 // Todas as outras rotas exigem autenticação
                 .anyRequest().authenticated()
@@ -87,7 +90,7 @@ public class SecurityConfig {
         List<String> origins = Arrays.asList(allowedOrigins.split(","));
         configuration.setAllowedOrigins(origins);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With", "Accept"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With", "Accept", "X-Sync-Token"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
 

@@ -4,6 +4,7 @@ import com.jobsearch.model.SearchProfile;
 import com.jobsearch.model.User;
 import com.jobsearch.repository.SearchProfileRepository;
 import com.jobsearch.repository.UserRepository;
+import com.jobsearch.service.JobService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,13 +15,16 @@ public class DataSeeder implements CommandLineRunner {
     private final UserRepository userRepository;
     private final SearchProfileRepository profileRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JobService jobService;
 
     public DataSeeder(UserRepository userRepository,
                       SearchProfileRepository profileRepository,
-                      PasswordEncoder passwordEncoder) {
+                      PasswordEncoder passwordEncoder,
+                      JobService jobService) {
         this.userRepository = userRepository;
         this.profileRepository = profileRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jobService = jobService;
     }
 
     @Override
@@ -62,5 +66,14 @@ public class DataSeeder implements CommandLineRunner {
                 60
         );
         profileRepository.save(profile2);
+
+        // 3. Dispara a sincronização inicial ao vivo em thread separada para popular as vagas da Gupy
+        new Thread(() -> {
+            try {
+                Thread.sleep(1500); // Aguarda o servidor HTTP terminar de subir
+                jobService.triggerManualRefresh(alvaro.getId());
+            } catch (Exception ignored) {
+            }
+        }, "initial-scraper-thread").start();
     }
 }

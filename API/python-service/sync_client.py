@@ -16,7 +16,7 @@ import urllib.error
 class SpringBootSyncClient:
     def __init__(self, base_url: str = "http://localhost:8082", sync_token: Optional[str] = None):
         self.base_url = base_url.rstrip("/")
-        self.sync_token = sync_token if sync_token is not None else os.environ.get("SYNC_TOKEN", "")
+        self.sync_token = sync_token if sync_token is not None else os.environ.get("SYNC_TOKEN", "jobsearch-internal-sync-token-2026")
 
     def sync_jobs(self, user_id: int, scored_jobs: List[Dict[str, Any]]) -> Dict[str, Any]:
         """Envia as vagas pontuadas para o Spring Boot."""

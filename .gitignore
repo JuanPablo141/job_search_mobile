@@ -1,1 +1,17 @@
 *.pdf
+
+# Maven / Java
+API/backend/target/
+*.class
+
+# Python
+API/python-service/__pycache__/
+*.pyc
+
+# Node / Ionic / Angular
+mobile-app/node_modules/
+mobile-app/.angular/
+mobile-app/www/
+mobile-app/.vscode/
+mobile-app/playwright-report/
+mobile-app/test-results/

@@ -80,7 +80,12 @@
               <ion-card-header>
                 <div class="card-header-row">
                   <div class="badge-group">
-                    <ion-badge color="success" class="score-badge">
+                    <ion-badge
+                      class="score-badge"
+                      [class.score-high]="match.score >= 80"
+                      [class.score-mid]="match.score >= 60 && match.score < 80"
+                      [class.score-low]="match.score < 60"
+                    >
                       {{ match.score | matchScore }}
                     </ion-badge>
                     <span class="source-tag">{{ match.job.source || 'Gupy' }}</span>

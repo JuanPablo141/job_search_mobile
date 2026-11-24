@@ -1,4 +1,4 @@
-import { Directive, Input, HostBinding, OnChanges, SimpleChanges } from '@angular/core';
+import { Directive, Input, HostBinding } from '@angular/core';
 
 /**
  * Diretiva personalizada 1 (Requisito 5 do projeto)
@@ -12,28 +12,25 @@ import { Directive, Input, HostBinding, OnChanges, SimpleChanges } from '@angula
   selector: '[appMatchHighlight]',
   standalone: true
 })
-export class MatchHighlightDirective implements OnChanges {
-  @Input('appMatchHighlight') score: number | null | undefined = 0;
-
+export class MatchHighlightDirective {
   @HostBinding('style.borderLeft') borderLeft = '6px solid #92949c';
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['score']) {
-      this.applyHighlight();
-    }
+  @Input('appMatchHighlight')
+  set score(value: number | null | undefined) {
+    this.applyHighlight(value);
   }
 
-  private applyHighlight(): void {
-    const s = this.score ?? 0;
+  private applyHighlight(score: number | null | undefined): void {
+    const s = Number(score ?? 0);
 
     if (s >= 80) {
       // Alta compatibilidade: Verde vibrante (#2dd36f)
       this.borderLeft = '6px solid #2dd36f';
     } else if (s >= 60) {
-      // Média aderência: Amarelo/Laranja (#ffc409)
+      // Média aderência: Amarelo/Âmbar (#ffc409)
       this.borderLeft = '6px solid #ffc409';
     } else {
-      // Baixa aderência: Cinza neutro
+      // Baixa aderência: Cinza neutro (#92949c)
       this.borderLeft = '6px solid #92949c';
     }
   }

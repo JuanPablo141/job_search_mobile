@@ -17,6 +17,7 @@ export interface SearchProfile {
   name: string;
   keywords: string;
   min_score: number;
+  minScore?: number;
   created_at?: string;
 }
 

@@ -187,9 +187,10 @@ export class PerfilPage implements OnInit {
     await loader.present();
 
     const payload = {
-      name: this.profileName,
+      name: (this.profileName || 'Desenvolvedor Full Stack').trim(),
       keywords: this.skills().join(', '),
-      min_score: this.minScore
+      minScore: Number(this.minScore),
+      min_score: Number(this.minScore)
     };
 
     this.jobService.updateActiveProfile(payload).subscribe({

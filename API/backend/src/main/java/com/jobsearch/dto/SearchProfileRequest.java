@@ -1,5 +1,6 @@
 package com.jobsearch.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -12,6 +13,7 @@ public class SearchProfileRequest {
     private String keywords;
 
     @NotNull(message = "A pontuação mínima é obrigatória.")
+    @JsonAlias("min_score")
     private Integer minScore;
 
     public SearchProfileRequest() {

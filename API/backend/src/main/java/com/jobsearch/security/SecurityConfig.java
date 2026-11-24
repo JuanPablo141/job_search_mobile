@@ -66,10 +66,12 @@ public class SecurityConfig {
                 .requestMatchers("/api/jobs/sync/**").permitAll()
                 // Catálogo de skills é público (não contém dados do usuário)
                 .requestMatchers(HttpMethod.GET, "/api/skills", "/api/skills/**").permitAll()
-                // Visualização, classificação de etapa e disparo do scraper permitidos (fallback para usuário demo ID 1 se sem token)
+                // Visualização, classificação de etapa, perfil ativo e disparo do scraper permitidos (fallback para usuário demo ID 1 se sem token)
                 .requestMatchers(HttpMethod.GET, "/api/jobs", "/api/jobs/**").permitAll()
                 .requestMatchers(HttpMethod.PATCH, "/api/jobs/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/jobs/refresh").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/profiles/active").permitAll()
+                .requestMatchers(HttpMethod.PUT, "/api/profiles/active").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
                 // Todas as outras rotas exigem autenticação
                 .anyRequest().authenticated()

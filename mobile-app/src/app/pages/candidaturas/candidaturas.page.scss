@@ -129,7 +129,14 @@
   flex-direction: column;
   height: 100%;
   margin: 0;
+}
+
+.clickable-area {
   cursor: pointer;
+
+  &:hover .job-title {
+    color: #38bdf8;
+  }
 }
 
 .app-card-body {
@@ -216,28 +223,33 @@
   gap: 4px;
 }
 
-.status-control-box {
-  background: rgba(11, 15, 25, 0.65);
-  border: 1px solid rgba(56, 189, 248, 0.2);
-  border-radius: 10px;
-  padding: 4px 12px;
+.action-row {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  align-items: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  padding-top: 10px;
+  cursor: pointer;
 
-  label {
-    font-size: 0.78rem;
-    font-weight: 600;
-    color: #cbd5e1;
-    white-space: nowrap;
+  &:hover .details-cta {
+    transform: translateX(2px);
   }
 }
 
-.status-select {
-  --color: #38bdf8;
-  font-size: 0.8rem;
-  font-weight: 700;
+.status-tag {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.details-cta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #38bdf8;
+  transition: transform 0.18s ease;
 }
 
 .empty-state {

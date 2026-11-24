@@ -8,8 +8,8 @@
       @if (jobMatch()) {
         <ion-button (click)="toggleFavorite()">
           <ion-icon
-            [name]="favService.isFavorite(jobMatch()!.id) ? 'heart' : 'heart-outline'"
-            [color]="favService.isFavorite(jobMatch()!.id) ? 'danger' : 'light'"
+            [name]="(jobMatch()!.is_favorite || favService.isFavorite(jobMatch()!.id)) ? 'heart' : 'heart-outline'"
+            [color]="(jobMatch()!.is_favorite || favService.isFavorite(jobMatch()!.id)) ? 'danger' : 'light'"
             slot="icon-only"
           ></ion-icon>
         </ion-button>
@@ -55,6 +55,31 @@
             </div>
           </div>
 
+          <!-- Classificação da Etapa da Vaga -->
+          <div class="stage-box">
+            <div class="stage-box-header">
+              <span class="stage-box-label">Classificar Etapa da Vaga</span>
+              <span class="stage-current-pill" [ngClass]="'stage-' + match.status">
+                {{ getStageLabel(match.status) | uppercase }}
+              </span>
+            </div>
+            <div class="stage-pills">
+              @for (st of stages; track st.value) {
+                <button
+                  type="button"
+                  class="stage-pill-btn"
+                  [class.active-new]="match.status === 'new' && st.value === 'new'"
+                  [class.active-applied]="match.status === 'applied' && st.value === 'applied'"
+                  [class.active-interview]="match.status === 'interview' && st.value === 'interview'"
+                  [class.active-discarded]="match.status === 'discarded' && st.value === 'discarded'"
+                  (click)="handleStatusChange(st.value)"
+                >
+                  {{ st.label }}
+                </button>
+              }
+            </div>
+          </div>
+
           <div class="divider"></div>
 
           <h3 class="section-heading">Descrição da Oportunidade</h3>
@@ -83,15 +108,15 @@
             <ion-button
               expand="block"
               fill="outline"
-              [color]="favService.isFavorite(match.id) ? 'danger' : 'medium'"
+              [color]="(match.is_favorite || favService.isFavorite(match.id)) ? 'danger' : 'medium'"
               (click)="toggleFavorite()"
               class="fav-action-btn"
             >
               <ion-icon
                 slot="start"
-                [name]="favService.isFavorite(match.id) ? 'heart' : 'heart-outline'"
+                [name]="(match.is_favorite || favService.isFavorite(match.id)) ? 'heart' : 'heart-outline'"
               ></ion-icon>
-              {{ favService.isFavorite(match.id) ? 'Remover dos Favoritos' : 'Salvar nos Favoritos' }}
+              {{ (match.is_favorite || favService.isFavorite(match.id)) ? 'Remover dos Favoritos' : 'Salvar nos Favoritos' }}
             </ion-button>
           </div>
         </ion-card-content>
@@ -107,9 +132,9 @@
   <ion-toast
     [isOpen]="isToastOpen()"
     [message]="toastMessage()"
-    [duration]="2500"
+    [duration]="2000"
     (didDismiss)="isToastOpen.set(false)"
-    position="bottom"
-    color="dark"
+    position="top"
+    cssClass="app-toast"
   ></ion-toast>
 </ion-content>

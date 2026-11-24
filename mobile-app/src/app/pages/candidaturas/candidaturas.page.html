@@ -76,7 +76,6 @@
               [appMatchHighlight]="match.score"
               appCardHover
               class="app-card"
-              [routerLink]="['/tabs/jobs', match.id]"
             >
               <ion-card-header>
                 <div class="card-header-row">
@@ -96,14 +95,17 @@
                   </ion-button>
                 </div>
 
-                <ion-card-title class="job-title">{{ match.job.title }}</ion-card-title>
-                <ion-card-subtitle class="company-name">{{ match.job.company }}</ion-card-subtitle>
+                <!-- Área clicável exclusiva para abrir detalhes -->
+                <div class="clickable-area" [routerLink]="['/tabs/jobs', match.id]">
+                  <ion-card-title class="job-title">{{ match.job.title }}</ion-card-title>
+                  <ion-card-subtitle class="company-name">{{ match.job.company }}</ion-card-subtitle>
+                </div>
               </ion-card-header>
 
               <ion-card-content class="app-card-body">
-                <p class="description">{{ match.job.description | truncate:100 }}</p>
+                <div class="clickable-area" [routerLink]="['/tabs/jobs', match.id]">
+                  <p class="description">{{ match.job.description | truncate:100 }}</p>
 
-                <div class="card-footer-block">
                   <div class="meta-row">
                     <span class="meta-item">
                       <ion-icon name="location-outline"></ion-icon>
@@ -114,21 +116,40 @@
                       {{ match.job.posted_at | date:'dd/MM/yyyy' }}
                     </span>
                   </div>
+                </div>
 
-                  <!-- Controle de Status em Tempo Real (PATCH na API) -->
-                  <div class="status-control-box" (click)="$event.stopPropagation()">
-                    <label>Etapa:</label>
-                    <ion-select
-                      [value]="match.status"
-                      interface="popover"
-                      (ionChange)="handleStatusChange(match.id, $event.detail.value)"
-                      class="status-select"
-                    >
-                      <ion-select-option value="applied">Candidatura Enviada</ion-select-option>
-                      <ion-select-option value="interview">Entrevista Agendada</ion-select-option>
-                      <ion-select-option value="discarded">Descartada</ion-select-option>
-                      <ion-select-option value="new">Nova Oportunidade</ion-select-option>
-                    </ion-select>
+                <div class="card-footer-block">
+                  <!-- Classificação de Etapa com 1 toque (isolada da navegação do card) -->
+                  <div class="stage-box">
+                    <div class="stage-box-header">
+                      <span class="stage-box-label">Etapa da Candidatura</span>
+                      <span class="stage-current-pill" [ngClass]="'stage-' + match.status">
+                        {{ getStageLabel(match.status) | uppercase }}
+                      </span>
+                    </div>
+                    <div class="stage-pills">
+                      @for (st of stages; track st.value) {
+                        <button
+                          type="button"
+                          class="stage-pill-btn"
+                          [class.active-new]="match.status === 'new' && st.value === 'new'"
+                          [class.active-applied]="match.status === 'applied' && st.value === 'applied'"
+                          [class.active-interview]="match.status === 'interview' && st.value === 'interview'"
+                          [class.active-discarded]="match.status === 'discarded' && st.value === 'discarded'"
+                          (click)="handleStatusChange($event, match.id, st.value)"
+                        >
+                          {{ st.label }}
+                        </button>
+                      }
+                    </div>
+                  </div>
+
+                  <div class="action-row" [routerLink]="['/tabs/jobs', match.id]">
+                    <span class="status-tag">Abrir descrição completa</span>
+                    <div class="details-cta">
+                      <span>Ver Detalhes</span>
+                      <ion-icon name="chevron-forward-outline"></ion-icon>
+                    </div>
                   </div>
                 </div>
               </ion-card-content>
@@ -151,8 +172,9 @@
   <ion-toast
     [isOpen]="isToastOpen()"
     [message]="toastMessage()"
-    [duration]="2500"
+    [duration]="2000"
     (didDismiss)="isToastOpen.set(false)"
-    position="bottom"
+    position="top"
+    cssClass="app-toast"
   ></ion-toast>
 </ion-content>

@@ -201,7 +201,14 @@
   flex-direction: column;
   height: 100%;
   margin: 0;
+}
+
+.clickable-area {
   cursor: pointer;
+
+  &:hover .job-title {
+    color: #38bdf8;
+  }
 }
 
 .job-card-body {
@@ -293,11 +300,16 @@
   align-items: center;
   border-top: 1px solid rgba(255, 255, 255, 0.07);
   padding-top: 10px;
+  cursor: pointer;
+
+  &:hover .details-cta {
+    transform: translateX(2px);
+  }
 }
 
 .status-tag {
   font-size: 0.72rem;
-  font-weight: 600;
+  font-weight: 500;
   color: #64748b;
 }
 
@@ -308,6 +320,7 @@
   font-size: 0.82rem;
   font-weight: 600;
   color: #38bdf8;
+  transition: transform 0.18s ease;
 }
 
 .empty-state {

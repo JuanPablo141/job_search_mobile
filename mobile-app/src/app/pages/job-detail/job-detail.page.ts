@@ -33,7 +33,7 @@ import {
 } from 'ionicons/icons';
 import { JobApiService } from '../../core/services/job-api.service';
 import { FavoritesStorageService } from '../../core/services/favorites-storage.service';
-import { UserJobMatchResponse } from '../../core/models/job.model';
+import { UserJobMatchResponse, MatchStatus } from '../../core/models/job.model';
 import { MatchScorePipe } from '../../shared/pipes/match-score.pipe';
 import { MatchHighlightDirective } from '../../shared/directives/match-highlight.directive';
 
@@ -75,6 +75,13 @@ export class JobDetailPage implements OnInit {
   private jobService = inject(JobApiService);
   public favService = inject(FavoritesStorageService);
 
+  readonly stages: { value: MatchStatus; label: string }[] = [
+    { value: 'new', label: 'Nova' },
+    { value: 'applied', label: 'Enviada' },
+    { value: 'interview', label: 'Entrevista' },
+    { value: 'discarded', label: 'Descartada' }
+  ];
+
   jobMatch = signal<UserJobMatchResponse | null>(null);
   loading = signal<boolean>(true);
   toastMessage = signal<string>('');
@@ -101,6 +108,19 @@ export class JobDetailPage implements OnInit {
     }
   }
 
+  private showToast(msg: string): void {
+    this.isToastOpen.set(false);
+    setTimeout(() => {
+      this.toastMessage.set(msg);
+      this.isToastOpen.set(true);
+    }, 10);
+  }
+
+  getStageLabel(status: string): string {
+    const found = this.stages.find((s) => s.value === status);
+    return found ? found.label : 'Nova';
+  }
+
   loadJobDetails(id: number): void {
     this.loading.set(true);
     // Chamada ao segundo método GET usando o parâmetro da rota
@@ -115,13 +135,30 @@ export class JobDetailPage implements OnInit {
     });
   }
 
+  handleStatusChange(newStatus: MatchStatus): void {
+    const match = this.jobMatch();
+    if (!match || match.status === newStatus) return;
+
+    this.jobMatch.set({ ...match, status: newStatus });
+
+    this.jobService.updateMatch(match.id, { status: newStatus }).subscribe({
+      next: () => {
+        this.showToast(`✓ Etapa alterada para "${this.getStageLabel(newStatus)}"`);
+      },
+      error: () => {
+        this.showToast('Não foi possível atualizar a etapa no servidor.');
+      }
+    });
+  }
+
   toggleFavorite(): void {
     const match = this.jobMatch();
     if (!match) return;
 
     const isFav = this.favService.toggleFavorite(match.id);
-    this.toastMessage.set(isFav ? 'Vaga adicionada aos favoritos!' : 'Vaga removida dos favoritos.');
-    this.isToastOpen.set(true);
+    this.jobMatch.set({ ...match, is_favorite: isFav });
+    this.jobService.updateMatch(match.id, { is_favorite: isFav }).subscribe({ error: () => {} });
+    this.showToast(isFav ? '⭐ Vaga adicionada aos favoritos!' : 'Vaga removida dos favoritos.');
   }
 
   openUrl(): void {

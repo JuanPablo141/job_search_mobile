@@ -128,7 +128,6 @@
               [appMatchHighlight]="item.score"
               appCardHover
               class="job-card"
-              [routerLink]="['/tabs/jobs', item.id]"
             >
               <ion-card-header>
                 <div class="card-header-row">
@@ -148,14 +147,17 @@
                   </ion-button>
                 </div>
 
-                <ion-card-title class="job-title">{{ item.job.title }}</ion-card-title>
-                <ion-card-subtitle class="company-name">{{ item.job.company }}</ion-card-subtitle>
+                <!-- Área clicável exclusiva para abrir os detalhes da vaga -->
+                <div class="clickable-area" [routerLink]="['/tabs/jobs', item.id]">
+                  <ion-card-title class="job-title">{{ item.job.title }}</ion-card-title>
+                  <ion-card-subtitle class="company-name">{{ item.job.company }}</ion-card-subtitle>
+                </div>
               </ion-card-header>
 
               <ion-card-content class="job-card-body">
-                <p class="description">{{ item.job.description | truncate:120 }}</p>
+                <div class="clickable-area" [routerLink]="['/tabs/jobs', item.id]">
+                  <p class="description">{{ item.job.description | truncate:120 }}</p>
 
-                <div class="card-footer-block">
                   <div class="meta-row">
                     <span class="meta-item">
                       <ion-icon name="location-outline"></ion-icon>
@@ -166,9 +168,36 @@
                       {{ item.job.posted_at | date:'dd/MM/yyyy' }}
                     </span>
                   </div>
+                </div>
 
-                  <div class="action-row">
-                    <span class="status-tag">Status: {{ item.status | uppercase }}</span>
+                <div class="card-footer-block">
+                  <!-- Classificação de Etapa com 1 toque (independente de favoritar e sem navegar para a vaga) -->
+                  <div class="stage-box">
+                    <div class="stage-box-header">
+                      <span class="stage-box-label">Etapa da Vaga</span>
+                      <span class="stage-current-pill" [ngClass]="'stage-' + item.status">
+                        {{ getStageLabel(item.status) | uppercase }}
+                      </span>
+                    </div>
+                    <div class="stage-pills">
+                      @for (st of stages; track st.value) {
+                        <button
+                          type="button"
+                          class="stage-pill-btn"
+                          [class.active-new]="item.status === 'new' && st.value === 'new'"
+                          [class.active-applied]="item.status === 'applied' && st.value === 'applied'"
+                          [class.active-interview]="item.status === 'interview' && st.value === 'interview'"
+                          [class.active-discarded]="item.status === 'discarded' && st.value === 'discarded'"
+                          (click)="handleStatusChange($event, item.id, st.value)"
+                        >
+                          {{ st.label }}
+                        </button>
+                      }
+                    </div>
+                  </div>
+
+                  <div class="action-row" [routerLink]="['/tabs/jobs', item.id]">
+                    <span class="status-tag">Abrir descrição completa</span>
                     <div class="details-cta">
                       <span>Ver Detalhes</span>
                       <ion-icon name="chevron-forward-outline"></ion-icon>
@@ -195,8 +224,9 @@
   <ion-toast
     [isOpen]="isToastOpen()"
     [message]="toastMessage()"
-    [duration]="3000"
+    [duration]="2000"
     (didDismiss)="isToastOpen.set(false)"
-    position="bottom"
+    position="top"
+    cssClass="app-toast"
   ></ion-toast>
 </ion-content>

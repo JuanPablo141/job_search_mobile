@@ -17,8 +17,6 @@ import {
   IonBadge,
   IonButton,
   IonIcon,
-  IonSelect,
-  IonSelectOption,
   IonSpinner,
   IonToast,
   IonRefresher,
@@ -76,8 +74,6 @@ type FilterTab = 'all' | 'applied' | 'interview' | 'discarded' | 'favorites';
     IonBadge,
     IonButton,
     IonIcon,
-    IonSelect,
-    IonSelectOption,
     IonSpinner,
     IonToast,
     IonRefresher,
@@ -87,6 +83,13 @@ type FilterTab = 'all' | 'applied' | 'interview' | 'discarded' | 'favorites';
 export class CandidaturasPage implements OnInit {
   private jobService = inject(JobApiService);
   public favService = inject(FavoritesStorageService);
+
+  readonly stages: { value: MatchStatus; label: string }[] = [
+    { value: 'new', label: 'Nova' },
+    { value: 'applied', label: 'Enviada' },
+    { value: 'interview', label: 'Entrevista' },
+    { value: 'discarded', label: 'Descartada' }
+  ];
 
   matches = signal<UserJobMatchResponse[]>([]);
   loading = signal<boolean>(true);
@@ -146,8 +149,29 @@ export class CandidaturasPage implements OnInit {
     this.loadData();
   }
 
-  loadData(event?: any): void {
-    this.loading.set(true);
+  ionViewWillEnter(): void {
+    if (this.matches().length > 0) {
+      this.loadData(undefined, true);
+    }
+  }
+
+  private showToast(msg: string): void {
+    this.isToastOpen.set(false);
+    setTimeout(() => {
+      this.toastMessage.set(msg);
+      this.isToastOpen.set(true);
+    }, 10);
+  }
+
+  getStageLabel(status: string): string {
+    const found = this.stages.find((s) => s.value === status);
+    return found ? found.label : 'Nova';
+  }
+
+  loadData(event?: any, silent = false): void {
+    if (!silent) {
+      this.loading.set(true);
+    }
     this.jobService.getJobs().subscribe({
       next: (data) => {
         this.matches.set(data);
@@ -165,16 +189,21 @@ export class CandidaturasPage implements OnInit {
     this.activeTab.set(event.detail.value);
   }
 
-  handleStatusChange(matchId: number, newStatus: string): void {
+  handleStatusChange(event: Event, matchId: number, newStatus: MatchStatus): void {
+    event.stopPropagation();
+    event.preventDefault();
+
+    const current = this.matches().find((m) => m.id === matchId);
+    if (current?.status === newStatus) return;
+
+    this.matches.update((prev) => prev.map((m) => (m.id === matchId ? { ...m, status: newStatus } : m)));
+
     this.jobService.updateMatch(matchId, { status: newStatus }).subscribe({
-      next: (updated) => {
-        this.matches.update((prev) => prev.map((m) => (m.id === matchId ? { ...m, status: newStatus as any } : m)));
-        this.toastMessage.set(`✓ Etapa atualizada para "${newStatus}" com sucesso!`);
-        this.isToastOpen.set(true);
+      next: () => {
+        this.showToast(`✓ Etapa atualizada para "${this.getStageLabel(newStatus)}"`);
       },
       error: () => {
-        this.toastMessage.set('Não foi possível atualizar o status.');
-        this.isToastOpen.set(true);
+        this.showToast('Não foi possível atualizar o status.');
       }
     });
   }
@@ -184,7 +213,7 @@ export class CandidaturasPage implements OnInit {
     event.preventDefault();
     const isFav = this.favService.toggleFavorite(matchId);
     this.matches.update((prev) => prev.map((m) => (m.id === matchId ? { ...m, is_favorite: isFav } : m)));
-    this.toastMessage.set(isFav ? '⭐ Adicionada às favoritas!' : 'Removida das favoritas.');
-    this.isToastOpen.set(true);
+    this.jobService.updateMatch(matchId, { is_favorite: isFav }).subscribe({ error: () => {} });
+    this.showToast(isFav ? '⭐ Adicionada às favoritas!' : 'Removida das favoritas.');
   }
 }

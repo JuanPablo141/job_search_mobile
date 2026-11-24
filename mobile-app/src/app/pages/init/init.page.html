@@ -304,8 +304,9 @@
   <ion-toast
     [isOpen]="isToastOpen"
     [message]="toastMessage"
-    [duration]="2500"
+    [duration]="2000"
     (didDismiss)="isToastOpen = false"
-    position="bottom"
+    position="top"
+    cssClass="app-toast"
   ></ion-toast>
 </ion-content>

@@ -15,6 +15,7 @@ import com.jobsearch.repository.UserRepository;
 import com.jobsearch.security.SyncTokenProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +42,9 @@ public class JobService {
     private final UserRepository userRepository;
     private final SearchProfileRepository profileRepository;
     private final SyncTokenProvider syncTokenProvider;
+
+    @Value("${server.port:8082}")
+    private String serverPort;
 
     public JobService(UserJobMatchRepository matchRepository,
                       JobRepository jobRepository,
@@ -218,7 +222,7 @@ public class JobService {
                 );
                 pb.directory(scriptFile.getParentFile());
                 pb.environment().put("SYNC_TOKEN", syncTokenProvider.getToken());
-                pb.environment().put("SPRING_API_URL", "http://localhost:8082");
+                pb.environment().put("SPRING_API_URL", "http://localhost:" + (serverPort != null ? serverPort : "8082"));
                 pb.redirectErrorStream(true);
 
                 Process process = pb.start();

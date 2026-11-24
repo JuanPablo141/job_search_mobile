@@ -1,0 +1,32 @@
+services:
+  backend:
+    build:
+      context: ./API
+      dockerfile: Dockerfile
+    container_name: jobsearch-backend
+    ports:
+      - "8082:8082"
+    environment:
+      - PORT=8082
+      - PYTHON_CMD=python3
+      - SYNC_TOKEN=jobsearch-internal-sync-token-2026
+      - CORS_ALLOWED_ORIGINS=*
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/api/skills"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 25s
+
+  frontend:
+    build:
+      context: ./mobile-app
+      dockerfile: Dockerfile
+    container_name: jobsearch-frontend
+    ports:
+      - "8100:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped

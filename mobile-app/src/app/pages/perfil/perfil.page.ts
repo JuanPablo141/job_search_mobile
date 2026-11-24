@@ -78,7 +78,7 @@ export class PerfilPage implements OnInit {
   profileName = 'Desenvolvedor Full Stack / Mobile';
   minScore = 70;
   skills = signal<string[]>(['Angular', 'Ionic', 'TypeScript', 'Java', 'Spring Boot', 'REST API']);
-  newSkillInput = '';
+  newSkillInput = signal<string>('');
 
   availableSkills = signal<Skill[]>([]);
   popularSkills = [
@@ -103,7 +103,7 @@ export class PerfilPage implements OnInit {
   isToastOpen = signal<boolean>(false);
 
   filteredSuggestions = computed(() => {
-    const query = this.newSkillInput.trim().toLowerCase();
+    const query = this.newSkillInput().trim().toLowerCase();
     if (!query) return [];
     return this.availableSkills()
       .filter((s) => s.name.toLowerCase().includes(query) && !this.skills().includes(s.name))
@@ -166,7 +166,7 @@ export class PerfilPage implements OnInit {
     }
 
     this.skills.update((prev) => [...prev, trimmed]);
-    this.newSkillInput = '';
+    this.newSkillInput.set('');
   }
 
   removeSkill(skillName: string): void {

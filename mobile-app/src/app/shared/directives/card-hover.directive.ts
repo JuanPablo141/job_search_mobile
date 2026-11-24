@@ -14,7 +14,7 @@ import { Directive, HostBinding, HostListener } from '@angular/core';
 })
 export class CardHoverDirective {
   @HostBinding('style.transform') transform = 'translateY(0)';
-  @HostBinding('style.boxShadow') boxShadow = '0 2px 8px rgba(0, 0, 0, 0.08)';
+  @HostBinding('style.boxShadow') boxShadow = '0 10px 25px rgba(0, 0, 0, 0.35)';
   @HostBinding('style.transition') transition = 'transform 0.25s ease, box-shadow 0.25s ease';
   @HostBinding('style.cursor') cursor = 'pointer';
 
@@ -40,11 +40,11 @@ export class CardHoverDirective {
 
   private elevate(): void {
     this.transform = 'translateY(-4px)';
-    this.boxShadow = '0 8px 18px rgba(0, 0, 0, 0.14)';
+    this.boxShadow = '0 14px 30px rgba(56, 189, 248, 0.22)';
   }
 
   private reset(): void {
     this.transform = 'translateY(0)';
-    this.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.08)';
+    this.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.35)';
   }
 }

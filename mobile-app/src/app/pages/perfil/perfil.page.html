@@ -110,11 +110,12 @@
                 id="skill-input"
                 type="text"
                 placeholder="Ex: React, Java, Docker, AWS..."
-                [(ngModel)]="newSkillInput"
-                (keyup.enter)="addSkill(newSkillInput)"
+                [value]="newSkillInput()"
+                (ionInput)="newSkillInput.set(($event.detail.value || '').toString())"
+                (keyup.enter)="addSkill(newSkillInput())"
                 class="custom-input flex-input"
               ></ion-input>
-              <ion-button (click)="addSkill(newSkillInput)" color="secondary" class="add-btn">
+              <ion-button (click)="addSkill(newSkillInput())" color="secondary" class="add-btn">
                 <ion-icon name="add-outline" slot="icon-only"></ion-icon>
               </ion-button>
             </div>

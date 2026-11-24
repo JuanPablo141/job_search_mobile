@@ -11,7 +11,7 @@
 
 <ion-content [fullscreen]="true" class="perfil-content">
   <div class="perfil-wrapper">
-    <!-- Hero / Calibração (Idêntico ao Perfil.tsx) -->
+    <!-- Hero / Calibração -->
     <div class="hero-box">
       <div class="tag">✦ CALIBRAÇÃO IA</div>
       <h2>Perfil Profissional & Skills</h2>
@@ -24,74 +24,81 @@
         <p>Carregando perfil e catálogo de skills...</p>
       </div>
     } @else {
-      <!-- Seção 1: Identificação Profissional -->
-      <ion-card class="section-card">
-        <ion-card-header>
-          <ion-card-title>
-            <ion-icon name="person-outline"></ion-icon>
-            Identificação
-          </ion-card-title>
-          <ion-card-subtitle>Informações que definem seu objetivo profissional</ion-card-subtitle>
-        </ion-card-header>
+      <!-- Grade Superior: Identificação + Aderência Mínima lado a lado em desktop -->
+      <div class="top-cards-grid">
+        <!-- Seção 1: Identificação Profissional -->
+        <ion-card class="section-card">
+          <ion-card-header>
+            <ion-card-title>
+              <ion-icon name="person-outline"></ion-icon>
+              Identificação
+            </ion-card-title>
+            <ion-card-subtitle>Informações que definem seu objetivo profissional</ion-card-subtitle>
+          </ion-card-header>
 
-        <ion-card-content>
-          <div class="input-group">
-            <label for="prof-name">Cargo Alvo / Título Profissional:</label>
-            <ion-input
-              id="prof-name"
-              type="text"
-              placeholder="Ex: Desenvolvedor Front-End / Mobile"
-              [(ngModel)]="profileName"
-              name="profileName"
-              class="custom-input"
-            ></ion-input>
-          </div>
+          <ion-card-content>
+            <div class="input-group">
+              <label for="prof-name">Cargo Alvo / Título Profissional:</label>
+              <ion-input
+                id="prof-name"
+                type="text"
+                placeholder="Ex: Desenvolvedor Front-End / Mobile"
+                [(ngModel)]="profileName"
+                name="profileName"
+                class="custom-input"
+              ></ion-input>
+            </div>
 
-          <div class="input-group">
-            <label for="prof-email">E-mail da Conta:</label>
-            <ion-input
-              id="prof-email"
-              type="email"
-              [value]="auth.currentUser()?.email || 'alvarooliver1802@gmail.com'"
-              readonly
-              disabled
-              class="custom-input read-only"
-            ></ion-input>
-          </div>
-        </ion-card-content>
-      </ion-card>
+            <div class="input-group">
+              <label for="prof-email">E-mail da Conta:</label>
+              <ion-input
+                id="prof-email"
+                type="email"
+                [value]="auth.currentUser()?.email || 'alvarooliver1802@gmail.com'"
+                readonly
+                disabled
+                class="custom-input read-only"
+              ></ion-input>
+            </div>
+          </ion-card-content>
+        </ion-card>
 
-      <!-- Seção 2: Calibração de Nota Mínima de Match -->
-      <ion-card class="section-card">
-        <ion-card-header>
-          <ion-card-title>
-            <ion-icon name="sparkles-outline"></ion-icon>
-            Aderência Mínima (Match IA)
-          </ion-card-title>
-          <ion-card-subtitle>Filtrar vagas com nota superior a este patamar</ion-card-subtitle>
-        </ion-card-header>
+        <!-- Seção 2: Calibração de Nota Mínima de Match -->
+        <ion-card class="section-card">
+          <ion-card-header>
+            <ion-card-title>
+              <ion-icon name="sparkles-outline"></ion-icon>
+              Aderência Mínima (Match IA)
+            </ion-card-title>
+            <ion-card-subtitle>Filtrar vagas com nota superior a este patamar</ion-card-subtitle>
+          </ion-card-header>
 
-        <ion-card-content>
-          <div class="range-display">
-            <span>Nota mínima recomendada:</span>
-            <ion-badge color="primary" class="score-badge">{{ minScore }}%</ion-badge>
-          </div>
+          <ion-card-content class="range-card-content">
+            <div class="range-display">
+              <span>Nota mínima recomendada:</span>
+              <ion-badge color="primary" class="score-badge">{{ minScore }}%</ion-badge>
+            </div>
 
-          <ion-range
-            [min]="0"
-            [max]="100"
-            [step]="5"
-            [(ngModel)]="minScore"
-            color="primary"
-            pin="true"
-          >
-            <ion-label slot="start">0%</ion-label>
-            <ion-label slot="end">100%</ion-label>
-          </ion-range>
-        </ion-card-content>
-      </ion-card>
+            <ion-range
+              [min]="0"
+              [max]="100"
+              [step]="5"
+              [(ngModel)]="minScore"
+              color="primary"
+              pin="true"
+            >
+              <ion-label slot="start">0%</ion-label>
+              <ion-label slot="end">100%</ion-label>
+            </ion-range>
 
-      <!-- Seção 3: Habilidades Técnicas & Autocomplete (Perfil.tsx) -->
+            <p class="range-hint">
+              Valores entre <strong>65% e 80%</strong> entregam o melhor equilíbrio entre volume e precisão nas vagas.
+            </p>
+          </ion-card-content>
+        </ion-card>
+      </div>
+
+      <!-- Seção 3: Habilidades Técnicas & Autocomplete -->
       <ion-card class="section-card">
         <ion-card-header>
           <ion-card-title>
@@ -133,7 +140,7 @@
             }
           </div>
 
-          <!-- Sugestões Populares Rápidas (Perfil.tsx) -->
+          <!-- Sugestões Populares Rápidas -->
           <div class="popular-section">
             <span class="pop-label">Sugestões rápidas de TI:</span>
             <div class="pop-chips">
@@ -164,10 +171,12 @@
           </div>
 
           <!-- Botão de Salvar Perfil -->
-          <ion-button expand="block" (click)="handleSave()" class="save-btn btn-primary-gradient">
-            <ion-icon name="save-outline" slot="start"></ion-icon>
-            Salvar Perfil & Recalcular Aderência
-          </ion-button>
+          <div class="save-actions">
+            <ion-button expand="block" (click)="handleSave()" class="save-btn btn-primary-gradient">
+              <ion-icon name="save-outline" slot="start"></ion-icon>
+              Salvar Perfil & Recalcular Aderência
+            </ion-button>
+          </div>
         </ion-card-content>
       </ion-card>
     }

@@ -18,12 +18,15 @@
   --ion-background-color-rgb: 11, 15, 25;
   --ion-text-color: #f8fafc;
   --ion-text-color-rgb: 248, 250, 252;
+  --app-max-width: 1080px;
+  --app-narrow-width: 760px;
 }
 
 body {
   background-color: #0b0f19 !important;
   color: #f8fafc !important;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* Scrollbar estilizada sutil */
@@ -42,34 +45,37 @@ body {
   background: #38bdf8;
 }
 
-/* Header estilizado em dark obsidian com blur */
+/* Header estilizado em dark obsidian com blur e conteúdo centralizado em telas largas */
 ion-header.custom-header {
-  --background: rgba(11, 15, 25, 0.95);
-  background: rgba(11, 15, 25, 0.95);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+  --background: rgba(11, 15, 25, 0.92);
+  background: rgba(11, 15, 25, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(56, 189, 248, 0.14);
 
   ion-toolbar {
     --background: transparent;
     --color: #ffffff;
     --border-width: 0;
-    padding: 0 4px;
+    --min-height: 56px;
+    max-width: var(--app-max-width);
+    margin: 0 auto;
+    padding: 0 8px;
 
     ion-title {
-      font-size: 1.12rem;
+      font-size: 1.08rem;
       font-weight: 800;
       color: #ffffff;
-      letter-spacing: -0.2px;
+      letter-spacing: -0.25px;
     }
   }
 }
 
-/* Efeito glassmorphism e bordas padrão para ion-card */
+/* Efeito glassmorphism e bordas padrão para ion-card (sem !important em border/box-shadow para permitir diretivas) */
 ion-card {
   --background: #131b2e !important;
   background: #131b2e !important;
-  border: 1px solid rgba(56, 189, 248, 0.16);
+  border: 1px solid rgba(56, 189, 248, 0.14);
   border-radius: 16px !important;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
 }
@@ -77,25 +83,36 @@ ion-card {
 /* Botões com gradiente neon da marca Job Search */
 .btn-primary-gradient {
   --background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%) !important;
+  --background-hover: linear-gradient(135deg, #0369a1 0%, #0ea5e9 100%) !important;
   --color: #ffffff !important;
   font-weight: 700 !important;
-  letter-spacing: 0.3px;
-  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+  letter-spacing: 0.2px;
+  --box-shadow: 0 4px 16px rgba(2, 132, 199, 0.35);
   --border-radius: 12px;
   text-transform: none;
 }
 
 /* Chips estilizados */
 ion-chip {
-  --background: rgba(30, 41, 59, 0.8);
+  --background: rgba(30, 41, 59, 0.78);
   --color: #cbd5e1;
-  border: 1px solid rgba(56, 189, 248, 0.2);
-  border-radius: 12px;
+  border: 1px solid rgba(56, 189, 248, 0.18);
+  border-radius: 10px;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 /* Badges com visual refinado */
 ion-badge {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-weight: 700;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
+}
+
+/* Toast refinado para tema escuro */
+ion-toast {
+  --background: #131b2e;
+  --color: #f8fafc;
+  --border-radius: 12px;
+  --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  font-weight: 500;
 }

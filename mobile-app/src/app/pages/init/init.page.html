@@ -1,9 +1,9 @@
 <ion-header [translucent]="true" class="ion-no-border header-bar">
   <ion-toolbar class="header-toolbar">
     <div class="header-inner">
-      <div class="brand-group">
+      <div class="brand-group" (click)="goTo('/init')">
         <div class="logo-box">
-          <svg width="38" height="38" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg width="36" height="36" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stop-color="#38bdf8" />
@@ -29,6 +29,7 @@
       <div class="header-btns">
         @if (auth.isLoggedIn()) {
           <button class="nav-btn" (click)="goTo('/tabs/jobs')">Vagas</button>
+          <button class="nav-btn hide-xs" (click)="goTo('/tabs/candidaturas')">Candidaturas</button>
           <button class="logout-btn" (click)="handleLogout()">Sair</button>
         } @else {
           <button class="login-btn" (click)="goTo('/login')">Entrar</button>
@@ -42,155 +43,165 @@
 <ion-content [fullscreen]="true" class="init-content">
   <!-- Banner de Sessão Ativa -->
   @if (auth.isLoggedIn()) {
-    <div class="logged-banner">
-      <span class="banner-pill">✦ SESSÃO ATIVA</span>
-      <h2>Bem-vindo de volta, {{ auth.currentUser()?.name || 'Candidato' }}!</h2>
-      <p>Seu perfil está sincronizado com o motor de compatibilidade IA do Spring Boot.</p>
-      <div class="banner-actions">
-        <button class="btn-cyan" (click)="goTo('/tabs/jobs')">Explorar Vagas Recomendadas ➔</button>
-        <button class="btn-ghost" (click)="goTo('/tabs/candidaturas')">Ver Minhas Candidaturas</button>
+    <div class="section-container logged-wrapper">
+      <div class="logged-banner">
+        <div class="logged-info">
+          <span class="banner-pill">✦ SESSÃO ATIVA</span>
+          <h2>Bem-vindo de volta, {{ auth.currentUser()?.name || 'Candidato' }}!</h2>
+          <p>Seu perfil está sincronizado com o motor de compatibilidade IA do Spring Boot.</p>
+        </div>
+        <div class="banner-actions">
+          <button class="btn-cyan" (click)="goTo('/tabs/jobs')">Explorar Vagas ➔</button>
+          <button class="btn-ghost" (click)="goTo('/tabs/candidaturas')">Candidaturas</button>
+        </div>
       </div>
     </div>
   }
 
-  <!-- Hero Section com Glow e Gradiente Idêntico -->
+  <!-- Hero Section -->
   <section class="hero-section">
-    <div class="hero-tag">
-      <span class="pulse-dot"></span>
-      <span>VAGAS EM TECNOLOGIA & TRIAGEM INTELIGENTE</span>
-    </div>
-
-    <h1 class="hero-title">
-      Encontre as vagas mais adequadas para você,
-      <span class="hero-title-highlight">sem perder tempo com processos cegos.</span>
-    </h1>
-
-    <p class="hero-desc">
-      Conectamos profissionais qualificados às empresas mais inovadoras do mercado com análise automatizada de currículo, pretensão salarial clara e feedback ágil.
-    </p>
-
-    <div class="cta-buttons-group">
-      @if (auth.isLoggedIn()) {
-        <button class="primary-hero-btn" (click)="goTo('/tabs/jobs')">
-          Explorar Vagas Recomendadas ➔
-        </button>
-        <button class="secondary-hero-btn" (click)="goTo('/tabs/candidaturas')">
-          Acompanhar Candidaturas
-        </button>
-      } @else {
-        <button class="primary-hero-btn" (click)="goTo('/register')">
-          Cadastrar Perfil Grátis ➔
-        </button>
-        <button class="secondary-hero-btn" (click)="goTo('/tabs/jobs')">
-          Explorar Vagas Abertas
-        </button>
-      }
-    </div>
-
-    <!-- Faixa de Métricas (Idêntica ao Init.tsx) -->
-    <div class="metrics-bar">
-      <div class="metric-card">
-        <span class="metric-val">+5.000</span>
-        <span class="metric-lbl">Vagas ativas no Brasil & Remotas</span>
+    <div class="section-container">
+      <div class="hero-tag">
+        <span class="pulse-dot"></span>
+        <span>VAGAS EM TECNOLOGIA & TRIAGEM INTELIGENTE</span>
       </div>
-      <div class="metric-card">
-        <span class="metric-val">+800</span>
-        <span class="metric-lbl">Empresas parceiras conectadas</span>
+
+      <h1 class="hero-title">
+        Encontre as vagas mais adequadas para você,
+        <span class="hero-title-highlight">sem perder tempo com processos cegos.</span>
+      </h1>
+
+      <p class="hero-desc">
+        Conectamos profissionais qualificados às empresas mais inovadoras do mercado com análise automatizada de currículo, aderência por IA e feedback ágil.
+      </p>
+
+      <div class="cta-buttons-group">
+        @if (auth.isLoggedIn()) {
+          <button class="primary-hero-btn" (click)="goTo('/tabs/jobs')">
+            Explorar Vagas Recomendadas ➔
+          </button>
+          <button class="secondary-hero-btn" (click)="goTo('/tabs/candidaturas')">
+            Acompanhar Candidaturas
+          </button>
+        } @else {
+          <button class="primary-hero-btn" (click)="goTo('/register')">
+            Cadastrar Perfil Grátis ➔
+          </button>
+          <button class="secondary-hero-btn" (click)="goTo('/tabs/jobs')">
+            Explorar Vagas Abertas
+          </button>
+        }
       </div>
-      <div class="metric-card">
-        <span class="metric-val">48h</span>
-        <span class="metric-lbl">Tempo médio de retorno das etapas</span>
-      </div>
-      <div class="metric-card">
-        <span class="metric-val">100%</span>
-        <span class="metric-lbl">Gratuito para candidatos sempre</span>
+
+      <!-- Faixa de Métricas -->
+      <div class="metrics-bar">
+        <div class="metric-card">
+          <span class="metric-val">+5.000</span>
+          <span class="metric-lbl">Vagas ativas no Brasil & Remotas</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-val">+800</span>
+          <span class="metric-lbl">Empresas parceiras conectadas</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-val">48h</span>
+          <span class="metric-lbl">Tempo médio de retorno das etapas</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-val">100%</span>
+          <span class="metric-lbl">Gratuito para candidatos sempre</span>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- 3. Como Funciona (3 Passos) -->
   <section class="content-section">
-    <div class="section-tag-row">
-      <span class="section-tag">✦ PASSO A PASSO</span>
-      <h2 class="section-title">Como Funciona o Job Search</h2>
-      <p class="section-subtitle">Três passos objetivos para acelerar a sua recolocação profissional.</p>
-    </div>
-
-    <div class="steps-container">
-      <div class="step-box">
-        <span class="step-badge">PASSO 01</span>
-        <h3>Cadastre seu Perfil & Skills</h3>
-        <p>Defina suas principais competências técnicas, pretensão salarial e objetivos profissionais em menos de 2 minutos.</p>
+    <div class="section-container">
+      <div class="section-tag-row">
+        <span class="section-tag">✦ PASSO A PASSO</span>
+        <h2 class="section-title">Como Funciona o Job Search</h2>
+        <p class="section-subtitle">Três passos objetivos para acelerar a sua recolocação profissional.</p>
       </div>
 
-      <div class="step-box">
-        <span class="step-badge">PASSO 02</span>
-        <h3>Match Automatizado por IA</h3>
-        <p>Nosso algoritmo em Python analisa seu currículo contra milhares de oportunidades e ranqueia as vagas com maior aderência ao seu perfil.</p>
-      </div>
+      <div class="steps-container">
+        <div class="step-box">
+          <span class="step-badge">PASSO 01</span>
+          <h3>Cadastre seu Perfil & Skills</h3>
+          <p>Defina suas principais competências técnicas, nota mínima de match e objetivos profissionais em menos de 2 minutos.</p>
+        </div>
 
-      <div class="step-box">
-        <span class="step-badge">PASSO 03</span>
-        <h3>Candidatura & Feedback Ágil</h3>
-        <p>Candidate-se diretamente às vagas selecionadas e acompanhe cada etapa do processo com total clareza e previsibilidade.</p>
+        <div class="step-box">
+          <span class="step-badge">PASSO 02</span>
+          <h3>Match Automatizado por IA</h3>
+          <p>Nosso algoritmo em Python analisa seu perfil contra vagas reais da Gupy e ranqueia as oportunidades com maior aderência.</p>
+        </div>
+
+        <div class="step-box">
+          <span class="step-badge">PASSO 03</span>
+          <h3>Candidatura & Feedback Ágil</h3>
+          <p>Candidate-se diretamente às vagas selecionadas e acompanhe cada etapa do processo com clareza e previsibilidade.</p>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- 4. Categorias em Alta -->
   <section class="content-section section-dark">
-    <div class="section-tag-row">
-      <span class="section-tag">✦ EXPLORE POR ÁREA</span>
-      <h2 class="section-title">Categorias em Alta no Mercado</h2>
-      <p class="section-subtitle">Oportunidades com maior volume de contratações e salários competitivos.</p>
-    </div>
-
-    <div class="categories-grid">
-      <div class="cat-item" (click)="goTo('/tabs/jobs')">
-        <span class="cat-icon">💻</span>
-        <div class="cat-info">
-          <h4>Desenvolvimento & Software</h4>
-          <span>+2.400 vagas abertas</span>
-        </div>
+    <div class="section-container">
+      <div class="section-tag-row">
+        <span class="section-tag">✦ EXPLORE POR ÁREA</span>
+        <h2 class="section-title">Categorias em Alta no Mercado</h2>
+        <p class="section-subtitle">Oportunidades com maior volume de contratações e salários competitivos.</p>
       </div>
 
-      <div class="cat-item" (click)="goTo('/tabs/jobs')">
-        <span class="cat-icon">🎨</span>
-        <div class="cat-info">
-          <h4>Design & UX/UI</h4>
-          <span>+650 vagas abertas</span>
+      <div class="categories-grid">
+        <div class="cat-item" (click)="goTo('/tabs/jobs')">
+          <span class="cat-icon">💻</span>
+          <div class="cat-info">
+            <h4>Desenvolvimento & Software</h4>
+            <span>+2.400 vagas abertas</span>
+          </div>
         </div>
-      </div>
 
-      <div class="cat-item" (click)="goTo('/tabs/jobs')">
-        <span class="cat-icon">📊</span>
-        <div class="cat-info">
-          <h4>Dados & Inteligência Artificial</h4>
-          <span>+920 vagas abertas</span>
+        <div class="cat-item" (click)="goTo('/tabs/jobs')">
+          <span class="cat-icon">🎨</span>
+          <div class="cat-info">
+            <h4>Design & UX/UI</h4>
+            <span>+650 vagas abertas</span>
+          </div>
         </div>
-      </div>
 
-      <div class="cat-item" (click)="goTo('/tabs/jobs')">
-        <span class="cat-icon">📢</span>
-        <div class="cat-info">
-          <h4>Marketing & Growth</h4>
-          <span>+1.100 vagas abertas</span>
+        <div class="cat-item" (click)="goTo('/tabs/jobs')">
+          <span class="cat-icon">📊</span>
+          <div class="cat-info">
+            <h4>Dados & Inteligência Artificial</h4>
+            <span>+920 vagas abertas</span>
+          </div>
         </div>
-      </div>
 
-      <div class="cat-item" (click)="goTo('/tabs/jobs')">
-        <span class="cat-icon">🛡️</span>
-        <div class="cat-info">
-          <h4>DevOps & Cibersegurança</h4>
-          <span>+480 vagas abertas</span>
+        <div class="cat-item" (click)="goTo('/tabs/jobs')">
+          <span class="cat-icon">📢</span>
+          <div class="cat-info">
+            <h4>Marketing & Growth</h4>
+            <span>+1.100 vagas abertas</span>
+          </div>
         </div>
-      </div>
 
-      <div class="cat-item" (click)="goTo('/tabs/jobs')">
-        <span class="cat-icon">🌍</span>
-        <div class="cat-info">
-          <h4>Vagas 100% Remotas</h4>
-          <span>+1.850 vagas abertas</span>
+        <div class="cat-item" (click)="goTo('/tabs/jobs')">
+          <span class="cat-icon">🛡️</span>
+          <div class="cat-info">
+            <h4>DevOps & Cibersegurança</h4>
+            <span>+480 vagas abertas</span>
+          </div>
+        </div>
+
+        <div class="cat-item" (click)="goTo('/tabs/jobs')">
+          <span class="cat-icon">🌍</span>
+          <div class="cat-info">
+            <h4>Vagas 100% Remotas</h4>
+            <span>+1.850 vagas abertas</span>
+          </div>
         </div>
       </div>
     </div>
@@ -198,85 +209,97 @@
 
   <!-- 5. Diferenciais -->
   <section class="content-section">
-    <div class="section-tag-row">
-      <span class="section-tag">✦ DIFERENCIAIS</span>
-      <h2 class="section-title">Por que Escolher o Job Search?</h2>
-      <p class="section-subtitle">Desenvolvido para eliminar processos cansativos e dar visibilidade real às suas candidaturas.</p>
-    </div>
-
-    <div class="benefits-grid">
-      <div class="benefit-box">
-        <span class="benefit-icon">⚡</span>
-        <h3>Feedbacks Rápidos</h3>
-        <p>Chega de ficar no escuro. Acompanhe a evolução do status de cada candidatura em tempo real.</p>
+    <div class="section-container">
+      <div class="section-tag-row">
+        <span class="section-tag">✦ DIFERENCIAIS</span>
+        <h2 class="section-title">Por que Escolher o Job Search?</h2>
+        <p class="section-subtitle">Desenvolvido para eliminar processos cansativos e dar visibilidade real às suas candidaturas.</p>
       </div>
 
-      <div class="benefit-box">
-        <span class="benefit-icon">💸</span>
-        <h3>Salários Transparentes</h3>
-        <p>Vagas com faixas salariais claras desde a triagem, poupando seu tempo em entrevistas desajustadas.</p>
-      </div>
+      <div class="benefits-grid">
+        <div class="benefit-box">
+          <span class="benefit-icon">⚡</span>
+          <h3>Feedbacks Rápidos</h3>
+          <p>Chega de ficar no escuro. Acompanhe a evolução do status de cada candidatura em tempo real.</p>
+        </div>
 
-      <div class="benefit-box">
-        <span class="benefit-icon">🔒</span>
-        <h3>Privacidade Total</h3>
-        <p>Você decide a visibilidade do seu perfil perante as empresas com controle absoluto sobre seus dados.</p>
-      </div>
+        <div class="benefit-box">
+          <span class="benefit-icon">💸</span>
+          <h3>Salários Transparentes</h3>
+          <p>Vagas com informações claras desde a triagem, poupando seu tempo em entrevistas desajustadas.</p>
+        </div>
 
-      <div class="benefit-box">
-        <span class="benefit-icon">🆓</span>
-        <h3>100% Gratuito</h3>
-        <p>Sem planos premium, taxas ocultas ou paywalls para ter acesso a oportunidades e entrevistas.</p>
+        <div class="benefit-box">
+          <span class="benefit-icon">🔒</span>
+          <h3>Privacidade Total</h3>
+          <p>Você decide a visibilidade do seu perfil com controle absoluto sobre suas informações.</p>
+        </div>
+
+        <div class="benefit-box">
+          <span class="benefit-icon">🆓</span>
+          <h3>100% Gratuito</h3>
+          <p>Sem planos premium, taxas ocultas ou paywalls para ter acesso a oportunidades e entrevistas.</p>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- 6. FAQ Sanfonado -->
   <section class="content-section section-dark">
-    <div class="section-tag-row">
-      <span class="section-tag">✦ DÚVIDAS FREQUENTES</span>
-      <h2 class="section-title">Perguntas Frequentes</h2>
-      <p class="section-subtitle">Tudo o que você precisa saber antes de iniciar suas candidaturas.</p>
+    <div class="section-container faq-container">
+      <div class="section-tag-row">
+        <span class="section-tag">✦ DÚVIDAS FREQUENTES</span>
+        <h2 class="section-title">Perguntas Frequentes</h2>
+        <p class="section-subtitle">Tudo o que você precisa saber antes de iniciar suas candidaturas.</p>
+      </div>
+
+      <ion-accordion-group class="custom-accordion">
+        <ion-accordion value="faq1">
+          <ion-item slot="header" class="faq-header">
+            <ion-label>O cadastro é realmente gratuito?</ion-label>
+          </ion-item>
+          <div class="faq-body" slot="content">
+            Sim! Para candidatos, o acesso à plataforma, busca de vagas, cálculo de match e candidaturas são e sempre serão 100% gratuitos.
+          </div>
+        </ion-accordion>
+
+        <ion-accordion value="faq2">
+          <ion-item slot="header" class="faq-header">
+            <ion-label>Tem vagas para iniciantes, Júnior ou Estágio?</ion-label>
+          </ion-item>
+          <div class="faq-body" slot="content">
+            Com certeza! Contamos com filtros específicos para quem busca o primeiro emprego, estágio técnico ou posições de nível Júnior e Trainee.
+          </div>
+        </ion-accordion>
+
+        <ion-accordion value="faq3">
+          <ion-item slot="header" class="faq-header">
+            <ion-label>Como as empresas entram em contato comigo?</ion-label>
+          </ion-item>
+          <div class="faq-body" slot="content">
+            Assim que uma empresa demonstrar interesse no seu perfil, ela atualizará o status no painel e enviará convite diretamente ao seu e-mail cadastrado.
+          </div>
+        </ion-accordion>
+
+        <ion-accordion value="faq4">
+          <ion-item slot="header" class="faq-header">
+            <ion-label>Como funciona para vagas internacionais e remotas?</ion-label>
+          </ion-item>
+          <div class="faq-body" slot="content">
+            Você pode filtrar posições 100% remotas de empresas de tecnologia de todo o Brasil e do exterior sem restrições de localidade.
+          </div>
+        </ion-accordion>
+      </ion-accordion-group>
     </div>
-
-    <ion-accordion-group class="custom-accordion">
-      <ion-accordion value="faq1">
-        <ion-item slot="header" class="faq-header">
-          <ion-label>O cadastro é realmente gratuito?</ion-label>
-        </ion-item>
-        <div class="faq-body" slot="content">
-          Sim! Para candidatos, o acesso à plataforma, busca de vagas, cálculo de match e candidaturas são e sempre serão 100% gratuitos.
-        </div>
-      </ion-accordion>
-
-      <ion-accordion value="faq2">
-        <ion-item slot="header" class="faq-header">
-          <ion-label>Tem vagas para iniciantes, Júnior ou Estágio?</ion-label>
-        </ion-item>
-        <div class="faq-body" slot="content">
-          Com certeza! Contamos com filtros específicos para quem busca o primeiro emprego, estágio técnico ou posições de nível Júnior e Trainee.
-        </div>
-      </ion-accordion>
-
-      <ion-accordion value="faq3">
-        <ion-item slot="header" class="faq-header">
-          <ion-label>Como as empresas entram em contato comigo?</ion-label>
-        </ion-item>
-        <div class="faq-body" slot="content">
-          Assim que uma empresa demonstrar interesse no seu perfil, ela atualizará o status no painel e enviará convite diretamente ao seu e-mail cadastrado.
-        </div>
-      </ion-accordion>
-
-      <ion-accordion value="faq4">
-        <ion-item slot="header" class="faq-header">
-          <ion-label>Como funciona para vagas internacionais e remotas?</ion-label>
-        </ion-item>
-        <div class="faq-body" slot="content">
-          Você pode filtrar posições 100% remotas de empresas de tecnologia de todo o Brasil e do exterior sem restrições de localidade.
-        </div>
-      </ion-accordion>
-    </ion-accordion-group>
   </section>
+
+  <!-- Rodapé -->
+  <footer class="init-footer">
+    <div class="section-container footer-inner">
+      <span class="footer-brand">Job <span class="cyan">Search</span> • Match IA</span>
+      <span class="footer-copy">Ionic + Angular Standalone • Spring Boot & Python NLP</span>
+    </div>
+  </footer>
 
   <ion-toast
     [isOpen]="isToastOpen"

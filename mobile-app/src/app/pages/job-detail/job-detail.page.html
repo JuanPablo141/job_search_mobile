@@ -19,88 +19,90 @@
 </ion-header>
 
 <ion-content [fullscreen]="true" class="detail-content">
-  @if (loading()) {
-    <div class="loading-state">
-      <ion-spinner name="crescent" color="primary"></ion-spinner>
-      <p>Carregando informações da vaga...</p>
-    </div>
-  } @else if (jobMatch(); as match) {
-    <!-- Card Principal de Destaque -->
-    <ion-card [appMatchHighlight]="match.score" class="detail-card">
-      <ion-card-header>
-        <div class="badge-row">
-          <ion-badge color="success" class="score-badge">
-            {{ match.score | matchScore }}
-          </ion-badge>
-          <span class="source-tag">{{ match.job.source || 'Gupy' }}</span>
-        </div>
-
-        <ion-card-title class="detail-title">{{ match.job.title }}</ion-card-title>
-        <ion-card-subtitle class="detail-company">
-          <ion-icon name="business-outline"></ion-icon>
-          {{ match.job.company }}
-        </ion-card-subtitle>
-      </ion-card-header>
-
-      <ion-card-content>
-        <div class="meta-chips">
-          <div class="meta-chip">
-            <ion-icon name="location-outline"></ion-icon>
-            <span>{{ match.job.location | titlecase }}</span>
+  <div class="detail-shell">
+    @if (loading()) {
+      <div class="loading-state">
+        <ion-spinner name="crescent" color="primary"></ion-spinner>
+        <p>Carregando informações da vaga...</p>
+      </div>
+    } @else if (jobMatch(); as match) {
+      <!-- Card Principal de Destaque -->
+      <ion-card [appMatchHighlight]="match.score" class="detail-card">
+        <ion-card-header>
+          <div class="badge-row">
+            <ion-badge color="success" class="score-badge">
+              {{ match.score | matchScore }}
+            </ion-badge>
+            <span class="source-tag">{{ match.job.source || 'Gupy' }}</span>
           </div>
-          <div class="meta-chip">
-            <ion-icon name="calendar-outline"></ion-icon>
-            <span>Publicado em {{ match.job.posted_at | date:'dd/MM/yyyy' }}</span>
+
+          <ion-card-title class="detail-title">{{ match.job.title }}</ion-card-title>
+          <ion-card-subtitle class="detail-company">
+            <ion-icon name="business-outline"></ion-icon>
+            {{ match.job.company }}
+          </ion-card-subtitle>
+        </ion-card-header>
+
+        <ion-card-content>
+          <div class="meta-chips">
+            <div class="meta-chip">
+              <ion-icon name="location-outline"></ion-icon>
+              <span>{{ match.job.location | titlecase }}</span>
+            </div>
+            <div class="meta-chip">
+              <ion-icon name="calendar-outline"></ion-icon>
+              <span>Publicado em {{ match.job.posted_at | date:'dd/MM/yyyy' }}</span>
+            </div>
           </div>
-        </div>
 
-        <div class="divider"></div>
+          <div class="divider"></div>
 
-        <h3 class="section-heading">Descrição da Oportunidade</h3>
-        <p class="description-text">{{ match.job.description }}</p>
+          <h3 class="section-heading">Descrição da Oportunidade</h3>
+          <p class="description-text">{{ match.job.description }}</p>
 
-        <div class="divider"></div>
+          <div class="divider"></div>
 
-        <h3 class="section-heading">Análise de Compatibilidade IA</h3>
-        <div class="ai-box">
-          <ion-icon name="sparkles-outline" color="secondary" class="ai-icon"></ion-icon>
-          <div>
-            <strong>Aderência Semântica: {{ match.score }}%</strong>
-            <p>
-              Calculado pelo motor NLP em Python cruzando as competências do seu perfil
-              com os requisitos e descrição desta vaga.
-            </p>
+          <h3 class="section-heading">Análise de Compatibilidade IA</h3>
+          <div class="ai-box">
+            <ion-icon name="sparkles-outline" color="secondary" class="ai-icon"></ion-icon>
+            <div>
+              <strong>Aderência Semântica: {{ match.score }}%</strong>
+              <p>
+                Calculado pelo motor NLP em Python cruzando as competências do seu perfil
+                com os requisitos e descrição desta vaga.
+              </p>
+            </div>
           </div>
-        </div>
 
-        <div class="action-buttons">
-          <ion-button expand="block" class="apply-btn btn-primary-gradient" (click)="openUrl()">
-            <ion-icon slot="start" name="open-outline"></ion-icon>
-            Ver vaga oficial no Portal Gupy
-          </ion-button>
+          <div class="action-buttons">
+            <ion-button expand="block" class="apply-btn btn-primary-gradient" (click)="openUrl()">
+              <ion-icon slot="start" name="open-outline"></ion-icon>
+              Ver vaga oficial no Portal Gupy
+            </ion-button>
 
-          <ion-button
-            expand="block"
-            fill="outline"
-            [color]="favService.isFavorite(match.id) ? 'danger' : 'medium'"
-            (click)="toggleFavorite()"
-            class="fav-action-btn"
-          >
-            <ion-icon
-              slot="start"
-              [name]="favService.isFavorite(match.id) ? 'heart' : 'heart-outline'"
-            ></ion-icon>
-            {{ favService.isFavorite(match.id) ? 'Remover dos Favoritos' : 'Salvar Vaga nos Favoritos' }}
-          </ion-button>
-        </div>
-      </ion-card-content>
-    </ion-card>
-  } @else {
-    <div class="empty-state">
-      <p>Vaga não encontrada.</p>
-      <ion-button fill="outline" routerLink="/tabs/jobs">Voltar para Vagas</ion-button>
-    </div>
-  }
+            <ion-button
+              expand="block"
+              fill="outline"
+              [color]="favService.isFavorite(match.id) ? 'danger' : 'medium'"
+              (click)="toggleFavorite()"
+              class="fav-action-btn"
+            >
+              <ion-icon
+                slot="start"
+                [name]="favService.isFavorite(match.id) ? 'heart' : 'heart-outline'"
+              ></ion-icon>
+              {{ favService.isFavorite(match.id) ? 'Remover dos Favoritos' : 'Salvar nos Favoritos' }}
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    } @else {
+      <div class="empty-state">
+        <p>Vaga não encontrada.</p>
+        <ion-button fill="outline" routerLink="/tabs/jobs">Voltar para Vagas</ion-button>
+      </div>
+    }
+  </div>
 
   <ion-toast
     [isOpen]="isToastOpen()"

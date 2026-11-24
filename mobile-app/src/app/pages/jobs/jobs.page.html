@@ -22,7 +22,7 @@
     </ion-button>
   </ion-toolbar>
 
-  <!-- Barra de Pesquisa Rápida (Idêntica à Home.tsx) -->
+  <!-- Barra de Pesquisa Rápida -->
   <ion-toolbar class="search-toolbar">
     <ion-searchbar
       placeholder="Filtrar por cargo, stack ou empresa..."
@@ -39,151 +39,157 @@
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <!-- Hero Bar de Sincronização & Status da Gupy (Home.tsx) -->
-  <div class="sync-banner">
-    <div class="sync-info">
-      <span class="source-tag">✦ GUPY API • DEDUPLICAÇÃO SHA-256</span>
-      <h2>Vagas Recomendadas</h2>
-      <p>Selecionadas pelo motor de IA do Spring Boot e Python com base no seu perfil.</p>
+  <div class="jobs-shell">
+    <!-- Hero Bar de Sincronização & Status da Gupy -->
+    <div class="sync-banner">
+      <div class="sync-info">
+        <span class="source-tag">✦ GUPY API • DEDUPLICAÇÃO SHA-256</span>
+        <h2>Vagas Recomendadas</h2>
+        <p>Selecionadas pelo motor de IA do Spring Boot e Python com base no seu perfil.</p>
+      </div>
+
+      <ion-button size="small" (click)="handleManualRefresh()" [disabled]="isRefreshing()" class="refresh-action-btn btn-primary-gradient">
+        <ion-icon name="refresh-outline" slot="start"></ion-icon>
+        {{ isRefreshing() ? 'Sincronizando...' : 'Atualizar Vagas' }}
+      </ion-button>
     </div>
 
-    <ion-button size="small" (click)="handleManualRefresh()" [disabled]="isRefreshing()" class="refresh-action-btn btn-primary-gradient">
-      <ion-icon name="refresh-outline" slot="start"></ion-icon>
-      {{ isRefreshing() ? 'Sincronizando...' : 'Atualizar Vagas' }}
-    </ion-button>
-  </div>
+    <!-- Barra de Filtros: Match Mínimo e Favoritas -->
+    <div class="filter-controls-row">
+      <div class="filter-item select-box">
+        <ion-select
+          [value]="minScore()"
+          interface="popover"
+          (ionChange)="minScore.set($event.detail.value)"
+          class="score-select"
+        >
+          <ion-select-option [value]="0">Todas as Notas</ion-select-option>
+          <ion-select-option [value]="60">Match ≥ 60%</ion-select-option>
+          <ion-select-option [value]="70">Match ≥ 70%</ion-select-option>
+          <ion-select-option [value]="80">Match ≥ 80% (Alta)</ion-select-option>
+          <ion-select-option [value]="90">Match ≥ 90% (Top)</ion-select-option>
+        </ion-select>
+      </div>
 
-  <!-- Barra de Filtros: Match Mínimo e Favoritas -->
-  <div class="filter-controls-row">
-    <div class="filter-item select-box">
-      <ion-select
-        [value]="minScore()"
-        interface="popover"
-        (ionChange)="minScore.set($event.detail.value)"
-        class="score-select"
+      <ion-button
+        size="small"
+        [fill]="onlyFavorites() ? 'solid' : 'outline'"
+        [color]="onlyFavorites() ? 'warning' : 'medium'"
+        (click)="onlyFavorites.set(!onlyFavorites())"
+        class="fav-toggle-btn"
       >
-        <ion-select-option [value]="0">Todas as Notas</ion-select-option>
-        <ion-select-option [value]="60">Match ≥ 60%</ion-select-option>
-        <ion-select-option [value]="70">Match ≥ 70%</ion-select-option>
-        <ion-select-option [value]="80">Match ≥ 80% (Alta)</ion-select-option>
-        <ion-select-option [value]="90">Match ≥ 90% (Top)</ion-select-option>
-      </ion-select>
+        <ion-icon [name]="onlyFavorites() ? 'star' : 'star-outline'" slot="start"></ion-icon>
+        {{ onlyFavorites() ? 'Favoritas' : 'Todas' }}
+      </ion-button>
     </div>
 
-    <ion-button
-      size="small"
-      [fill]="onlyFavorites() ? 'solid' : 'outline'"
-      [color]="onlyFavorites() ? 'warning' : 'medium'"
-      (click)="onlyFavorites.set(!onlyFavorites())"
-      class="fav-toggle-btn"
-    >
-      <ion-icon [name]="onlyFavorites() ? 'star' : 'star-outline'" slot="start"></ion-icon>
-      {{ onlyFavorites() ? 'Favoritas' : 'Todas' }}
-    </ion-button>
-  </div>
-
-  <!-- Filtro Horizontal de Skills (Chips) vindas da API -->
-  <div class="skills-chips-row">
-    <ion-chip
-      [color]="selectedSkill() === 'all' ? 'primary' : 'medium'"
-      (click)="selectedSkill.set('all')"
-      class="filter-chip"
-    >
-      <ion-label>Todas as Skills</ion-label>
-    </ion-chip>
-
-    @for (s of skills(); track s.name) {
+    <!-- Filtro Horizontal de Skills (Chips) vindas da API -->
+    <div class="skills-chips-row">
       <ion-chip
-        [color]="selectedSkill() === s.name ? 'primary' : 'medium'"
-        (click)="toggleSkill(s.name)"
+        [color]="selectedSkill() === 'all' ? 'primary' : 'medium'"
+        (click)="selectedSkill.set('all')"
         class="filter-chip"
       >
-        <ion-label>{{ s.name }}</ion-label>
+        <ion-label>Todas as Skills</ion-label>
       </ion-chip>
-    }
-  </div>
 
-  <!-- Contador e Meta -->
-  <div class="results-meta">
-    <span>Exibindo <strong>{{ filteredMatches().length }}</strong> de <strong>{{ matches().length }}</strong> vagas</span>
-    @if (searchTerm() || minScore() > 0 || onlyFavorites() || selectedSkill() !== 'all') {
-      <button class="clear-btn" (click)="searchTerm.set(''); minScore.set(0); onlyFavorites.set(false); selectedSkill.set('all')">
-        Limpar Filtros
-      </button>
-    }
-  </div>
-
-  <!-- Lista de Vagas -->
-  <div class="list-container">
-    @if (loading()) {
-      <div class="loading-state">
-        <ion-spinner name="crescent" color="primary"></ion-spinner>
-        <p>Buscando oportunidades e calculando match...</p>
-      </div>
-    } @else {
-      @for (item of filteredMatches(); track item.id) {
-        <ion-card
-          [appMatchHighlight]="item.score"
-          appCardHover
-          class="job-card"
-          [routerLink]="['/tabs/jobs', item.id]"
+      @for (s of skills(); track s.name) {
+        <ion-chip
+          [color]="selectedSkill() === s.name ? 'primary' : 'medium'"
+          (click)="toggleSkill(s.name)"
+          class="filter-chip"
         >
-          <ion-card-header>
-            <div class="card-header-row">
-              <div class="badges-wrapper">
-                <ion-badge color="success" class="score-badge">
-                  {{ item.score | matchScore }}
-                </ion-badge>
-                <span class="source-tag-small">{{ item.job.source || 'Gupy' }}</span>
-              </div>
+          <ion-label>{{ s.name }}</ion-label>
+        </ion-chip>
+      }
+    </div>
 
-              <ion-button fill="clear" size="small" (click)="toggleFavorite($event, item.id)">
-                <ion-icon
-                  [name]="(item.is_favorite || favService.isFavorite(item.id)) ? 'heart' : 'heart-outline'"
-                  [color]="(item.is_favorite || favService.isFavorite(item.id)) ? 'danger' : 'medium'"
-                  slot="icon-only"
-                ></ion-icon>
+    <!-- Contador e Meta -->
+    <div class="results-meta">
+      <span>Exibindo <strong>{{ filteredMatches().length }}</strong> de <strong>{{ matches().length }}</strong> vagas</span>
+      @if (searchTerm() || minScore() > 0 || onlyFavorites() || selectedSkill() !== 'all') {
+        <button class="clear-btn" (click)="searchTerm.set(''); minScore.set(0); onlyFavorites.set(false); selectedSkill.set('all')">
+          Limpar Filtros
+        </button>
+      }
+    </div>
+
+    <!-- Lista de Vagas -->
+    <div class="list-container">
+      @if (loading()) {
+        <div class="loading-state">
+          <ion-spinner name="crescent" color="primary"></ion-spinner>
+          <p>Buscando oportunidades e calculando match...</p>
+        </div>
+      } @else {
+        <div class="jobs-grid">
+          @for (item of filteredMatches(); track item.id) {
+            <ion-card
+              [appMatchHighlight]="item.score"
+              appCardHover
+              class="job-card"
+              [routerLink]="['/tabs/jobs', item.id]"
+            >
+              <ion-card-header>
+                <div class="card-header-row">
+                  <div class="badges-wrapper">
+                    <ion-badge color="success" class="score-badge">
+                      {{ item.score | matchScore }}
+                    </ion-badge>
+                    <span class="source-tag-small">{{ item.job.source || 'Gupy' }}</span>
+                  </div>
+
+                  <ion-button fill="clear" size="small" class="fav-icon-btn" (click)="toggleFavorite($event, item.id)">
+                    <ion-icon
+                      [name]="(item.is_favorite || favService.isFavorite(item.id)) ? 'heart' : 'heart-outline'"
+                      [color]="(item.is_favorite || favService.isFavorite(item.id)) ? 'danger' : 'medium'"
+                      slot="icon-only"
+                    ></ion-icon>
+                  </ion-button>
+                </div>
+
+                <ion-card-title class="job-title">{{ item.job.title }}</ion-card-title>
+                <ion-card-subtitle class="company-name">{{ item.job.company }}</ion-card-subtitle>
+              </ion-card-header>
+
+              <ion-card-content class="job-card-body">
+                <p class="description">{{ item.job.description | truncate:120 }}</p>
+
+                <div class="card-footer-block">
+                  <div class="meta-row">
+                    <span class="meta-item">
+                      <ion-icon name="location-outline"></ion-icon>
+                      {{ item.job.location | titlecase }}
+                    </span>
+                    <span class="meta-item">
+                      <ion-icon name="calendar-outline"></ion-icon>
+                      {{ item.job.posted_at | date:'dd/MM/yyyy' }}
+                    </span>
+                  </div>
+
+                  <div class="action-row">
+                    <span class="status-tag">Status: {{ item.status | uppercase }}</span>
+                    <div class="details-cta">
+                      <span>Ver Detalhes</span>
+                      <ion-icon name="chevron-forward-outline"></ion-icon>
+                    </div>
+                  </div>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          } @empty {
+            <div class="empty-state">
+              <ion-icon name="briefcase-outline" class="empty-icon"></ion-icon>
+              <h3>Nenhuma vaga encontrada</h3>
+              <p>Tente ajustar a busca ou selecionar outra nota de match.</p>
+              <ion-button fill="outline" size="small" (click)="searchTerm.set(''); minScore.set(0); onlyFavorites.set(false); selectedSkill.set('all')">
+                Restaurar Filtros
               </ion-button>
             </div>
-
-            <ion-card-title class="job-title">{{ item.job.title }}</ion-card-title>
-            <ion-card-subtitle class="company-name">{{ item.job.company }}</ion-card-subtitle>
-          </ion-card-header>
-
-          <ion-card-content>
-            <p class="description">{{ item.job.description | truncate:120 }}</p>
-
-            <div class="meta-row">
-              <span class="meta-item">
-                <ion-icon name="location-outline"></ion-icon>
-                {{ item.job.location | titlecase }}
-              </span>
-              <span class="meta-item">
-                <ion-icon name="calendar-outline"></ion-icon>
-                {{ item.job.posted_at | date:'dd/MM/yyyy' }}
-              </span>
-            </div>
-
-            <div class="action-row">
-              <span class="status-tag">Status: {{ item.status | uppercase }}</span>
-              <div class="details-cta">
-                <span>Ver Detalhes</span>
-                <ion-icon name="chevron-forward-outline"></ion-icon>
-              </div>
-            </div>
-          </ion-card-content>
-        </ion-card>
-      } @empty {
-        <div class="empty-state">
-          <ion-icon name="briefcase-outline" class="empty-icon"></ion-icon>
-          <h3>Nenhuma vaga encontrada</h3>
-          <p>Tente ajustar a busca ou selecionar outra nota de match.</p>
-          <ion-button fill="outline" size="small" (click)="searchTerm.set(''); minScore.set(0); onlyFavorites.set(false); selectedSkill.set('all')">
-            Restaurar Filtros
-          </ion-button>
+          }
         </div>
       }
-    }
+    </div>
   </div>
 
   <ion-toast
